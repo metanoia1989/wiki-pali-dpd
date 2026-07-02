@@ -8,8 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "export-db": "cd ~/WorkSpace/dpd-db && uv run scripts/export/web_db.py",
-    "get-db": "cp ~/WorkSpace/dpd-db/exporter/share/dpd-web.db.gz ./dist/dpd-web.db.gz"
+    "test": "python3 -m http.server 8080 -d .",
+    "export-db": "python3 scripts/export/web_db.py --src ~/WorkSpace/dpd-db/dpd.db",
+    "get-db": "cp data/dpd-web.db.gz ./data/dpd-web.db.gz"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

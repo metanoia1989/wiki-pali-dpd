@@ -53,7 +53,7 @@ export class Injector {
         const input = document.querySelector("input#rc_select_0");
         if (!input) return;
 
-        const word = input.value.trim().toLowerCase();
+        const word = input.value.trim().toLowerCase().normalize("NFC");
         if (!word || word === this._lastWord) return;
         this._lastWord = word;
 
@@ -69,47 +69,55 @@ export class Injector {
     }
 
     async _lookup(word) {
-        this._removePanel();
-
-        const lookupRow = this.query.lookupWord(word);
-        if (!lookupRow || !lookupRow.headwords) return;
-
-        let headwordIds;
         try {
-            headwordIds = JSON.parse(lookupRow.headwords);
-        } catch {
-            return;
-        }
-        if (!headwordIds || headwordIds.length === 0) return;
+            this._removePanel();
 
-        const headword = this.query.getHeadword(headwordIds[0]);
-        if (!headword) return;
-
-        let deconstruction = null;
-        if (lookupRow.deconstructor) {
-            try {
-                deconstruction = JSON.parse(lookupRow.deconstructor);
-            } catch {
-                /* ignore */
+            let lookupRow = this.query.lookupWord(word);
+            if (!lookupRow || !lookupRow.headwords) {
+                // 兜底：在 headwords.inflections CSV 中搜索
+                lookupRow = this.query.searchInflections(word);
+                if (!lookupRow) return;
             }
-        }
 
-        const panel = new this.Panel(
-            word,
-            headword,
-            lookupRow,
-            deconstruction,
-            this.query
-        );
-        if (this._resultContainer) {
-            panel.injectBefore(this._resultContainer);
-            this._panelInstance = panel;
-        }
+            let headwordIds;
+            try {
+                headwordIds = JSON.parse(lookupRow.headwords);
+            } catch {
+                return;
+            }
+            if (!headwordIds || headwordIds.length === 0) return;
 
-        this.history.add({
-            word,
-            headword: headword.lemma_1,
-            timestamp: Date.now(),
-        });
+            const headword = this.query.getHeadword(headwordIds[0]);
+            if (!headword) return;
+
+            let deconstruction = null;
+            if (lookupRow.deconstructor) {
+                try {
+                    deconstruction = JSON.parse(lookupRow.deconstructor);
+                } catch {
+                    /* ignore */
+                }
+            }
+
+            const panel = new this.Panel(
+                word,
+                headword,
+                lookupRow,
+                deconstruction,
+                this.query
+            );
+            if (this._resultContainer) {
+                panel.injectBefore(this._resultContainer);
+                this._panelInstance = panel;
+            }
+
+            this.history.add({
+                word,
+                headword: headword.lemma_1,
+                timestamp: Date.now(),
+            });
+        } catch (err) {
+            console.error("[DPD] lookup error:", word, err);
+        }
     }
 }

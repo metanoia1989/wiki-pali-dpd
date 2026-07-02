@@ -1,8 +1,9 @@
 node_modules/
 dist/
-exporter/share/
 *.db
 *.db.gz
 .env
 .DS_Store
 *.log
+
+data/*.db

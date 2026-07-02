@@ -13,7 +13,7 @@ self.__DPD_MAIN__ = (async () => {
     const { History } = await import("./storage/history.js");
 
     const DB_CACHE_KEY = "dpd_web_db";
-    const DATA_URL = GM_getValue("dpd_data_url", "");
+    const DATA_URL = GM_getValue("dpd_data_url", "https://pali-declension.pages.dev/dpd-web.db.gz");
     const cache = new Cache();
     const history = new History();
 
@@ -60,7 +60,17 @@ self.__DPD_MAIN__ = (async () => {
                     return;
                 }
 
+                // 写入 IndexedDB 缓存
+                banner.querySelector(".dpd-init-msg").textContent =
+                    "正在写入缓存…";
+                fill.style.width = "100%";
                 await cache.set(DB_CACHE_KEY, buffer);
+
+                // 初始化 SQL 引擎
+                banner.querySelector(".dpd-init-msg").textContent =
+                    "正在初始化引擎…";
+                await new Promise((r) => setTimeout(r, 100));
+
                 banner.remove();
                 resolve(buffer);
             };
@@ -97,6 +107,11 @@ self.__DPD_MAIN__ = (async () => {
     injector.start();
 
     self.__DPD = { query, cache, history, injector };
+
+    // 通知页面脚本：DPD 引擎就绪
+    document.dispatchEvent(new CustomEvent("dpd-ready", {
+        detail: { version: self.__DPD_META__.version },
+    }));
 })();
 
 function _initBanner() {

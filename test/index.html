@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WikiPali 模拟测试页 | wiki-pali-dpd</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Noto Sans SC", sans-serif;
+      color: #333; background: #f5f5f5; line-height: 1.7;
+    }
+
+    /* ── top bar ──────────────────────────── */
+    .topbar {
+      background: #5c2e0e; color: #fff; padding: 12px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 600; }
+    .topbar .badge {
+      font-size: .75rem; background: rgba(255,255,255,.15);
+      padding: 2px 10px; border-radius: 10px;
+    }
+
+    /* ── layout ───────────────────────────── */
+    .main { display: flex; height: calc(100vh - 48px); }
+
+    /* ── left: text ───────────────────────── */
+    .text-panel {
+      flex: 1; overflow-y: auto; padding: 28px 32px;
+      background: #fff; border-right: 1px solid #e0d6cc;
+    }
+    .text-panel h2 {
+      font-size: 1.1rem; color: #5c2e0e; margin-bottom: 16px;
+      padding-bottom: 8px; border-bottom: 1px solid #eee;
+    }
+    .text-panel .sutta {
+      font-size: 1rem; margin-bottom: 24px;
+    }
+    .text-panel .sutta .ref {
+      font-size: .82rem; color: #999; margin-bottom: 6px;
+    }
+    .pcd_word {
+      color: #8b4513; cursor: pointer; font-weight: 500;
+      border-bottom: 1px dashed #d4a574; transition: background .15s;
+    }
+    .pcd_word:hover { background: #fdf3e6; }
+    .pcd_word.active { background: #f5e6d3; }
+
+    /* ── right: dictionary ────────────────── */
+    .dict-panel {
+      width: 420px; display: flex; flex-direction: column;
+      background: #fefcf9; border-left: 1px solid #e0d6cc;
+    }
+    .dict-panel .search-area {
+      padding: 16px 16px 12px; border-bottom: 1px solid #eee;
+    }
+    .dict-panel .search-area label {
+      font-size: .8rem; color: #888; display: block; margin-bottom: 4px;
+    }
+    .dict-panel .search-area .input-row {
+      display: flex; gap: 6px;
+    }
+    .dict-panel .search-area input {
+      flex: 1; padding: 8px 12px; border: 1px solid #d4a574;
+      border-radius: 6px; font-size: 1rem; outline: none;
+    }
+    .dict-panel .search-area input:focus {
+      border-color: #8b4513; box-shadow: 0 0 0 2px rgba(139,69,19,.15);
+    }
+    .dict-panel .search-area button {
+      padding: 8px 18px; background: #8b4513; color: #fff;
+      border: none; border-radius: 6px; cursor: pointer; font-size: .9rem;
+    }
+    .dict-panel .search-area button:hover { background: #a0522d; }
+
+    .dict-panel .tabs {
+      display: flex; border-bottom: 2px solid #e8d5c4; padding: 0 16px;
+    }
+    .dict-panel .tabs .tab {
+      padding: 8px 16px; cursor: pointer; font-size: .85rem; color: #888;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .dict-panel .tabs .tab.active {
+      color: #8b4513; border-bottom-color: #8b4513; font-weight: 600;
+    }
+
+    .dict-panel .result-area {
+      flex: 1; overflow-y: auto; padding: 12px 16px;
+    }
+    .dict-panel .result-area .placeholder {
+      color: #bbb; font-size: .85rem; text-align: center;
+      padding: 40px 0;
+    }
+    .dict-panel .result-area .result-word {
+      font-size: 1.05rem; font-weight: 600; color: #5c2e0e; padding: 8px 0;
+    }
+    .dict-panel .result-area .result-status {
+      font-size: .82rem; font-weight: 400; color: #999; font-style: italic;
+    }
+
+    /* ── helper ───────────────────────────── */
+    .dict-panel .search-hint {
+      font-size: .78rem; color: #aaa; margin-top: 4px;
+    }
+    .test-info {
+      position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
+      background: #333; color: #ffc107; padding: 4px 14px; border-radius: 12px;
+      font-size: .72rem; white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ top bar ═══ -->
+<div class="topbar">
+  <h1>WikiPali</h1>
+  <span class="badge">测试页</span>
+  <span style="font-size:.8rem;opacity:.7">wiki-pali-dpd 调试环境</span>
+  <span style="margin-left:auto;font-size:.72rem;color:#ffc107">
+    请使用 127.0.0.1 访问（非 localhost）
+  </span>
+</div>
+
+<!-- ═══ main ═══ -->
+<div class="main">
+
+  <!-- ── left: Pali text ── -->
+  <div class="text-panel" id="text-panel">
+    <h2>巴利经文选段</h2>
+
+    <div class="sutta">
+      <div class="ref">Dhammapada 1.1</div>
+      <p>
+        <span class="pcd_word" data-word="manopubbaṅgamā">Manopubbaṅgamā</span>
+        <span class="pcd_word" data-word="dhammā">dhammā</span>,
+        <span class="pcd_word" data-word="manoseṭṭhā">manoseṭṭhā</span>
+        <span class="pcd_word" data-word="manomayā">manomayā</span>;<br>
+        <span class="pcd_word" data-word="manasā">Manasā</span>
+        <span class="pcd_word" data-word="ce">ce</span>
+        <span class="pcd_word" data-word="paduṭṭhena">paduṭṭhena</span>
+        <span class="pcd_word" data-word="bhāsati">bhāsati</span>
+        vā
+        <span class="pcd_word" data-word="karoti">karoti</span> vā,<br>
+        <span class="pcd_word" data-word="tato">Tato</span>
+        <span class="pcd_word" data-word="naṃ">naṃ</span>
+        <span class="pcd_word" data-word="dukkhaṃ">dukkhaṃ</span>
+        <span class="pcd_word" data-word="anveti">anveti</span><br>
+        <span class="pcd_word" data-word="cakkaṃ">cakkaṃ</span>va
+        <span class="pcd_word" data-word="vahato">vahato</span>
+        <span class="pcd_word" data-word="padaṃ">padaṃ</span>.
+      </p>
+    </div>
+
+    <div class="sutta">
+      <div class="ref">Dhammapada 1.2</div>
+      <p>
+        <span class="pcd_word" data-word="manopubbaṅgamā">Manopubbaṅgamā</span>
+        <span class="pcd_word" data-word="dhammā">dhammā</span>,
+        <span class="pcd_word" data-word="manoseṭṭhā">manoseṭṭhā</span>
+        <span class="pcd_word" data-word="manomayā">manomayā</span>;<br>
+        <span class="pcd_word" data-word="manasā">Manasā</span>
+        <span class="pcd_word" data-word="ce">ce</span>
+        <span class="pcd_word" data-word="pasannena">pasannena</span>
+        <span class="pcd_word" data-word="bhāsati">bhāsati</span> vā
+        <span class="pcd_word" data-word="karoti">karoti</span> vā,<br>
+        <span class="pcd_word" data-word="tato">Tato</span>
+        <span class="pcd_word" data-word="naṃ">naṃ</span>
+        <span class="pcd_word" data-word="sukhaṃ">sukhaṃ</span>
+        <span class="pcd_word" data-word="anveti">anveti</span><br>
+        <span class="pcd_word" data-word="cakkaṃ">cakkaṃ</span>va
+        <span class="pcd_word" data-word="vahato">vahato</span>
+        <span class="pcd_word" data-word="padaṃ">padaṃ</span>.
+      </p>
+    </div>
+
+    <div class="sutta">
+      <div class="ref">Dhammapada 3.1 — 法句経 3章</div>
+      <p>
+        <span class="pcd_word" data-word="akkodhena">Akkodhena</span>
+        <span class="pcd_word" data-word="jitā">jitā</span>
+        <span class="pcd_word" data-word="kodho">kodho</span>,<br>
+        <span class="pcd_word" data-word="asādhum">Asādhum</span>
+        <span class="pcd_word" data-word="sādhunā">sādhunā</span>
+        <span class="pcd_word" data-word="jitaṃ">jitaṃ</span>,<br>
+        <span class="pcd_word" data-word="jitā">Jitā</span>
+        <span class="pcd_word" data-word="kadariyo">kadariyo</span>
+        <span class="pcd_word" data-word="dānena">dānena</span>,<br>
+        <span class="pcd_word" data-word="saccena">Saccena</span>
+        <span class="pcd_word" data-word="alikavādino">alikavādino</span>.
+      </p>
+    </div>
+
+    <div class="sutta">
+      <div class="ref">AN 3.47 — Saṅkhāra Sutta</div>
+      <p>
+        <span class="pcd_word" data-word="tīṇimāni">Tīṇimāni</span>,
+        <span class="pcd_word" data-word="bhikkhave">bhikkhave</span>,
+        <span class="pcd_word" data-word="saṅkhārānaṃ">saṅkhārānaṃ</span>
+        <span class="pcd_word" data-word="saṅkhāra">saṅkhāra</span>
+        <span class="pcd_word" data-word="lakkhaṇāni">lakkhaṇāni</span>.<br>
+        <span class="pcd_word" data-word="katamāni">Katamāni</span>
+        <span class="pcd_word" data-word="tīṇi">tīṇi</span>?<br>
+        <span class="pcd_word" data-word="uppādo">Uppādo</span>
+        <span class="pcd_word" data-word="paññāyati">paññāyati</span>,<br>
+        <span class="pcd_word" data-word="vayo">vayo</span>
+        <span class="pcd_word" data-word="paññāyati">paññāyati</span>,<br>
+        <span class="pcd_word" data-word="ṭhitassa">Ṭhitassa</span>
+        <span class="pcd_word" data-word="aññathattaṃ">aññathattaṃ</span>
+        <span class="pcd_word" data-word="paññāyati">paññāyati</span>.
+      </p>
+    </div>
+
+    <div class="sutta">
+      <div class="ref">MN 1 — Mūlapariyāya Sutta (excerpt)</div>
+      <p>
+        <span class="pcd_word" data-word="idha">Idha</span>,
+        <span class="pcd_word" data-word="bhikkhave">bhikkhave</span>,
+        <span class="pcd_word" data-word="assutavā">assutavā</span>
+        <span class="pcd_word" data-word="puthujjano">puthujjano</span><br>
+        <span class="pcd_word" data-word="pathaviṃ">Pathaviṃ</span>
+        <span class="pcd_word" data-word="pathavito">pathavito</span>
+        <span class="pcd_word" data-word="abhijānāti">abhijānāti</span>.<br>
+        <span class="pcd_word" data-word="pathaviṃ">Pathaviṃ</span>
+        <span class="pcd_word" data-word="abhijānamāno">abhijānamāno</span><br>
+        <span class="pcd_word" data-word="pathaviṃ">pathaviṃ</span>
+        <span class="pcd_word" data-word="maññati">maññati</span>,<br>
+        <span class="pcd_word" data-word="pathaviyā">pathaviyā</span>
+        <span class="pcd_word" data-word="maññati">maññati</span>,<br>
+        <span class="pcd_word" data-word="pathavito">pathavito</span>
+        <span class="pcd_word" data-word="maññati">maññati</span>,<br>
+        <span class="pcd_word" data-word="pathaviṃ">pathaviṃ</span>
+        <span class="pcd_word" data-word="meti">meti</span>
+        <span class="pcd_word" data-word="maññati">maññati</span>.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── right: dictionary ── -->
+  <div class="dict-panel">
+    <div class="search-area">
+      <label>巴利语词典查询</label>
+      <div class="input-row">
+        <input id="rc_select_0" type="text" placeholder="输入巴利语单词…" autofocus />
+        <button class="ant-input-search-button">查</button>
+      </div>
+      <div class="search-hint">
+        ← 点击左侧经文中的词，或直接输入
+      </div>
+    </div>
+
+    <div class="tabs">
+      <span class="tab active">结果</span>
+      <span class="tab">历史</span>
+    </div>
+
+    <div class="result-area" id="result-area">
+      <div id="rc-tabs-0-panel-result">
+        <div class="placeholder">输入单词后自动查询</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="test-info">
+  wiki-pali-dpd 测试页 ·
+  <span id="db-status" style="color:#ffc107">检测脚本状态…</span>
+</div>
+
+<div id="debug-log" style="
+  position:fixed;top:52px;right:16px;
+  background:#1a1a2e;color:#00ff88;padding:4px 12px;border-radius:6px;
+  font-family:monospace;font-size:.75rem;max-width:360px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;
+"></div>
+
+<script>
+  // ── 调试日志 ──
+  const logEl = document.getElementById('debug-log');
+  let logTimer = null;
+  function log(msg) {
+    logEl.textContent = '[DPD] ' + msg;
+    logEl.style.opacity = '1';
+    clearTimeout(logTimer);
+    logTimer = setTimeout(() => { logEl.style.opacity = '0'; }, 4000);
+  }
+
+  // ── 检测油猴脚本状态 ──
+  const statusEl = document.getElementById('db-status');
+
+  // 监听 userscript 主动派发的就绪事件（最可靠，绕过沙箱隔离）
+  document.addEventListener('dpd-ready', (e) => {
+    const ver = e.detail?.version || '?';
+    statusEl.textContent = '✓ DPD 已就绪 (v' + ver + ')';
+    statusEl.style.color = '#4caf50';
+    log('DPD 引擎已就绪，数据库已加载');
+  });
+
+  // 兜底轮询：检测下载弹窗或已就绪的 CSS 标记
+  let fallbackTries = 0;
+  const iv = setInterval(() => {
+    fallbackTries++;
+    // 检测脚本留下的痕迹：下载弹窗或面板样式
+    if (document.getElementById('dpd-init-banner')) {
+      statusEl.textContent = '⏳ 脚本已注入，正在下载数据…';
+      statusEl.style.color = '#ffc107';
+    }
+    // 30 秒提示检查安装状态
+    if (fallbackTries === 60) {
+      statusEl.textContent = '⏳ 等待脚本注入…';
+    }
+    // 60 秒后停止
+    if (fallbackTries > 120) clearInterval(iv);
+  }, 500);
+
+  // dpd-ready 收到后立即停止轮询
+  document.addEventListener('dpd-ready', () => clearInterval(iv), { once: true });
+
+  // ── 监听 DPD 面板注入 ──
+  document.addEventListener('DOMNodeInserted', (e) => {
+    if (e.target.classList && e.target.classList.contains('dpd-toolbar')) {
+      log('✓ DPD 面板已注入');
+    }
+  }, false);
+
+  // ── 模拟 WikiPali 的点击搜索行为 ──
+  // 点击左侧词 -> 填入搜索框 -> 触发 MutationObserver
+  document.querySelectorAll('.pcd_word').forEach(el => {
+    el.addEventListener('click', () => {
+      const word = el.dataset.word || el.textContent.trim().toLowerCase();
+      const input = document.getElementById('rc_select_0');
+      input.value = word;
+
+      // 高亮当前选中的词
+      document.querySelectorAll('.pcd_word').forEach(w => w.classList.remove('active'));
+      el.classList.add('active');
+
+      log('点击: "' + word + '"');
+
+      // 模拟 React 更新：清空结果容器再插入子节点
+      const resultPanel = document.getElementById('rc-tabs-0-panel-result');
+      resultPanel.innerHTML = '';
+
+      // 插入可见提示（同时作为 MutationObserver 的触发条件）
+      setTimeout(() => {
+        resultPanel.innerHTML =
+          '<div class="result-word">' + word +
+          ' <span class="result-status">查询 DPD…</span></div>';
+      }, 50);
+    });
+  });
+
+  // ── 回车触发搜索 ──
+  document.getElementById('rc_select_0').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const word = e.target.value.trim().toLowerCase();
+      if (!word) return;
+      log('搜索: "' + word + '"');
+      const resultPanel = document.getElementById('rc-tabs-0-panel-result');
+      resultPanel.innerHTML = '';
+      setTimeout(() => {
+        resultPanel.innerHTML =
+          '<div class="result-word">' + word +
+          ' <span class="result-status">查询 DPD…</span></div>';
+      }, 50);
+    }
+  });
+
+  // ── url 参数自动填入 ──
+  const params = new URLSearchParams(window.location.search);
+  const autoWord = params.get('q');
+  if (autoWord) {
+    document.getElementById('rc_select_0').value = autoWord;
+    log('自动查询: "' + autoWord + '"');
+    setTimeout(() => {
+      const resultPanel = document.getElementById('rc-tabs-0-panel-result');
+      resultPanel.innerHTML = '';
+      setTimeout(() => {
+        resultPanel.innerHTML =
+          '<div class="result-word">' + autoWord +
+          ' <span class="result-status">查询 DPD…</span></div>';
+      }, 50);
+    }, 500);
+  }
+</script>
+
+</body>
+</html>

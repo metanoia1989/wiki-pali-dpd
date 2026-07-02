@@ -42,7 +42,7 @@ export class Query {
         if (!this.db) return null;
         const stmt = this._prepare(
             "getHeadword",
-            `SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit, inflections
+            `SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit
              FROM headwords WHERE id = ?`
         );
         stmt.bind([id]);
@@ -53,6 +53,33 @@ export class Query {
         }
         stmt.reset();
         return null;
+    }
+
+    /**
+     * Fallback: search the headwords.inflections CSV column.
+     * Covers inflected forms that dpd-db didn't write into the lookup table
+     * (e.g. forms not attested in the Tipitaka corpus like sādhunā).
+     *
+     * @param {string} word - Normalized word to search for.
+     * @returns {object|null} Fake lookup row with {headwords}, or null.
+     */
+    searchInflections(word) {
+        if (!this.db) return null;
+        const stmt = this._prepare(
+            "searchInflections",
+            `SELECT id FROM headwords
+             WHERE inflections IS NOT NULL
+               AND ',' || inflections || ',' LIKE ?`
+        );
+        const pattern = "%," + word + ",%";
+        stmt.bind([pattern]);
+        const ids = [];
+        while (stmt.step()) {
+            ids.push(stmt.getAsObject().id);
+        }
+        stmt.reset();
+        if (ids.length === 0) return null;
+        return { headwords: JSON.stringify(ids) };
     }
 
     /**

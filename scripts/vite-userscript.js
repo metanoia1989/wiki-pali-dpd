@@ -23,7 +23,7 @@ export default function userscriptPlugin() {
   const metaFile = resolve(srcDir, "meta.js");
   const entryFile = resolve(srcDir, "main.js");
   const outFile = resolve(distDir, "wiki-pali-dpd.user.js");
-  const dbSource = resolve(root, "exporter", "share", "dpd-web.db.gz");
+  const dbSource = resolve(root, "data", "dpd-web.db.gz");
   const dbDest = resolve(distDir, "dpd-web.db.gz");
 
   const esbuildOpts = {

@@ -35,6 +35,27 @@ npm run build
 - 油猴脚本下载：`http://localhost:5173/wiki-pali-dpd.user.js`
   → 可在 Tampermonkey 中通过「从 URL 安装」添加，方便调试
 
+## 测试
+
+提供模拟 WikiPali 字典页面的测试页，方便在本地调试油猴脚本。
+
+```bash
+# 终端 1：构建并监听油猴脚本
+npm run dev
+
+# 终端 2：启动测试服务器（端口 8080，与 @match 一致）
+npm run test
+```
+
+1. 打开 `http://127.0.0.1:8080/test/`（注意用 IP 127.0.0.1 而非 localhost）
+2. 若 Tampermonkey 已安装脚本，页面上点击左侧经文中的词即可触发查询
+3. 右侧面板会显示 DPD 词典数据注入结果
+
+测试页结构：
+- `input#rc_select_0` — 搜索输入框
+- `div#rc-tabs-0-panel-result` — DPD 面板注入容器
+- `span.pcd_word` — 可点击的巴利语词
+
 ## 构建
 
 ```bash

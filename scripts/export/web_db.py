@@ -2,17 +2,23 @@
 """
 从 dpd.db 导出浏览器查询用的精简版 dpd-web.db。
 
+同时补全 lookup 表中缺失的变格形式（从 dpd_headwords.inflections 列读取），
+确保 sādhunā 等未在经文中验证的变格也能匹配到词头。
+
 Usage:
-    python scripts/export/web_db.py
+    python scripts/export/web_db.py [--src DB_PATH]
+
+    --src DB_PATH    可选，指向 dpd.db 的路径。默认在本项目根目录查找。
 
 Requires:
-    - dpd.db 在项目根目录存在
+    - dpd.db 可由 --src 指定，或位于项目根目录
     - sqlite3 (stdlib)
 
 Output:
     exporter/share/dpd-web.db.gz
 """
 
+import argparse
 import gzip
 import sqlite3
 import sys
@@ -20,8 +26,12 @@ from pathlib import Path
 
 # ── paths ────────────────────────────────────────────────────────────────
 PROJECT_DIR = Path(__file__).resolve().parents[2]
-SRC_DB = PROJECT_DIR / "dpd.db"
-OUT_DIR = PROJECT_DIR / "exporter" / "share"
+OUT_DIR = PROJECT_DIR / "data"
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--src", help="dpd.db 路径（默认: 项目根目录下的 dpd.db）")
+args = parser.parse_args()
+SRC_DB = Path(args.src) if args.src else PROJECT_DIR / "dpd.db"
 OUT_DB = OUT_DIR / "dpd-web.db"
 OUT_GZ = OUT_DIR / "dpd-web.db.gz"
 
@@ -43,7 +53,8 @@ CREATE TABLE headwords (
     stem            TEXT,
     pattern         TEXT,
     meaning_1       TEXT,
-    meaning_lit     TEXT
+    meaning_lit     TEXT,
+    inflections     TEXT
 );
 
 CREATE TABLE inflection_templates (
@@ -108,7 +119,7 @@ def main():
 
     IMPORT_TABLES = [
         ("lookup",               "lookup_key, headwords, deconstructor, grammar, spelling, see"),
-        ("dpd_headwords",        "headwords", "id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit"),
+        ("dpd_headwords",        "headwords", "id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit, inflections"),
         ("inflection_templates", "pattern, like, data"),
         ("dpd_roots",            "roots", "root, root_meaning"),
     ]
