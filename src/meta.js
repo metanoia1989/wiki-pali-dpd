@@ -3,12 +3,10 @@
 // @namespace    https://github.com/metanoia1989/wiki-pali-dpd
 // @version      0.1.0
 // @description  DPD 词典数据：变格表、复合词拆解、释义注入
-// @author       metanoia1989
-// @match        https://wikipali.cc/*
-// @match        https://wikipali.org/*
-// @match        https://tipitaka.org/*
-// @match        http://localhost:3000/*
-// @icon         https://wikipali.org/favicon.ico
+// @author       Adam Smith
+// @match        https://*.wikipali.cc/*
+// @match        https://*.wikipali.org/*
+// @icon         https://pali-declension.mysticalpower.uk/favicon.svg
 // @require      https://cdn.jsdelivr.net/npm/sql.js@1.11.0/dist/sql-wasm.js
 // @require      https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js
 // @grant        GM_getValue
