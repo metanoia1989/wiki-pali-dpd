@@ -13,12 +13,22 @@ self.__DPD_MAIN__ = (async () => {
     const { History } = await import("./storage/history.js");
 
     const DB_CACHE_KEY = "dpd_web_db";
+    const DB_VER_KEY = "dpd_db_version";
+    const DB_SCHEMA_VERSION = "20260703.1";  // schema 变更时递增
     const DATA_URL = GM_getValue("dpd_data_url", "https://pali-declension.pages.dev/dpd-web.db.gz");
     const cache = new Cache();
     const history = new History();
 
     // ── init banner & download ──────────────────────────────────
     async function ensureDb() {
+        // 版本不匹配 → 清除旧缓存强制重下
+        const cachedVer = GM_getValue(DB_VER_KEY, "");
+        if (cachedVer !== DB_SCHEMA_VERSION) {
+            console.log("[DPD] schema version mismatch", cachedVer, "→", DB_SCHEMA_VERSION);
+            await cache.delete(DB_CACHE_KEY);
+            GM_setValue(DB_VER_KEY, DB_SCHEMA_VERSION);
+        }
+
         let dbBuffer = await cache.get(DB_CACHE_KEY);
         if (dbBuffer) return dbBuffer;
 
@@ -123,7 +133,7 @@ function _initBanner() {
                 <div class="dpd-init-body">
                     <div class="dpd-init-msg">加载 DPD 巴利语词典数据？</div>
                     <div style="font-size:13px;color:#666;margin:4px 0 12px">
-                        首次使用需下载 ~11MB 词典数据，之后离线可用
+                        首次使用需下载 ~16MB 词典数据，之后离线可用
                     </div>
                     <div class="dpd-init-btns">
                         <button class="dpd-init-yes">下载</button>

@@ -65,21 +65,26 @@ export class Query {
      */
     searchInflections(word) {
         if (!this.db) return null;
-        const stmt = this._prepare(
-            "searchInflections",
-            `SELECT id FROM headwords
-             WHERE inflections IS NOT NULL
-               AND ',' || inflections || ',' LIKE ?`
-        );
-        const pattern = "%," + word + ",%";
-        stmt.bind([pattern]);
-        const ids = [];
-        while (stmt.step()) {
-            ids.push(stmt.getAsObject().id);
+        try {
+            const stmt = this._prepare(
+                "searchInflections",
+                `SELECT id FROM headwords
+                 WHERE inflections IS NOT NULL
+                   AND ',' || inflections || ',' LIKE ?`
+            );
+            const pattern = "%," + word + ",%";
+            stmt.bind([pattern]);
+            const ids = [];
+            while (stmt.step()) {
+                ids.push(stmt.getAsObject().id);
+            }
+            stmt.reset();
+            if (ids.length === 0) return null;
+            return { headwords: JSON.stringify(ids) };
+        } catch (e) {
+            // inflections 列不存在（旧版 DB）→ 静默降级
+            return null;
         }
-        stmt.reset();
-        if (ids.length === 0) return null;
-        return { headwords: JSON.stringify(ids) };
     }
 
     /**
