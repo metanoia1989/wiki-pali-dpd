@@ -1,0 +1,14 @@
+{
+  "name": "wiki-pali-dpd",
+  "version": "0.1.0",
+  "description": "Tampermonkey userscript for Wiki Pali - adds declension tables and compound word deconstruction using DPD data",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
