@@ -67,7 +67,7 @@ export default function userscriptPlugin() {
         if (url === "/wiki-pali-dpd.user.js") {
           if (existsSync(outFile)) {
             const content = readFileSync(outFile, "utf-8");
-            res.setHeader("Content-Type", "application/javascript");
+            res.setHeader("Content-Type", "text/plain; charset=utf-8");
             res.end(content);
           } else {
             res.statusCode = 404;

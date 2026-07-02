@@ -1,0 +1,5 @@
+# Cloudflare Pages 自定义响应头
+# 油猴脚本需以 text/plain 提供，让 Tampermonkey 能注入安装横幅
+/wiki-pali-dpd.user.js
+  Content-Type: text/plain; charset=utf-8
+  X-Content-Type-Options: nosniff
