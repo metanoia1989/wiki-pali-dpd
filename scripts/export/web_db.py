@@ -54,7 +54,12 @@ CREATE TABLE headwords (
     pattern         TEXT,
     meaning_1       TEXT,
     meaning_lit     TEXT,
-    inflections     TEXT
+    inflections     TEXT,
+    phonetic        TEXT,
+    grammar         TEXT,
+    construction    TEXT,
+    root_key        TEXT,
+    family_root     TEXT
 );
 
 CREATE TABLE inflection_templates (
@@ -65,7 +70,9 @@ CREATE TABLE inflection_templates (
 
 CREATE TABLE roots (
     root            TEXT PRIMARY KEY,
-    root_meaning    TEXT
+    root_meaning    TEXT,
+    root_sign       TEXT,
+    root_group      INTEGER
 );
 """
 
@@ -119,9 +126,9 @@ def main():
 
     IMPORT_TABLES = [
         ("lookup",               "lookup_key, headwords, deconstructor, grammar, spelling, see"),
-        ("dpd_headwords",        "headwords", "id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit, inflections"),
+        ("dpd_headwords",        "headwords", "id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit, inflections, phonetic, grammar, construction, root_key, family_root"),
         ("inflection_templates", "pattern, like, data"),
-        ("dpd_roots",            "roots", "root, root_meaning"),
+        ("dpd_roots",            "roots", "root, root_meaning, root_sign, root_group"),
     ]
     for entry in IMPORT_TABLES:
         src_tbl = entry[0]

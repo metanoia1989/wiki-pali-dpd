@@ -40,10 +40,11 @@ export class Query {
      */
     getHeadword(id) {
         if (!this.db) return null;
-        const stmt = this._prepare(
+        var stmt = this._prepare(
             "getHeadword",
-            `SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit
-             FROM headwords WHERE id = ?`
+            "SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit,"
+            + " phonetic, grammar, construction, root_key, family_root"
+            + " FROM headwords WHERE id = ?"
         );
         stmt.bind([id]);
         if (stmt.step()) {
@@ -64,7 +65,8 @@ export class Query {
         if (!this.db || !ids || !ids.length) return [];
         // 不缓存 stmt，因为 ? 数量每次可能不同
         var stmt = this.db.prepare(
-            "SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit"
+            "SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit,"
+            + " phonetic, grammar, construction, root_key, family_root"
             + " FROM headwords WHERE id IN (" + ids.map(function () { return "?"; }).join(",") + ")"
         );
         stmt.bind(ids);

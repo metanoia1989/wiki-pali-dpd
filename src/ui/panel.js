@@ -23,6 +23,10 @@ export class Panel {
     }
 
     // ── POS 映射 ─────────────────────────────────────
+    _cleanLemma(lemma) {
+        return lemma.replace(/\s+\d+(\.\d+)*$/, "");
+    }
+
     _mapPos(pos) {
         if (pos === "adj") return "adj";
         if (pos === "masc" || pos === "fem" || pos === "nt") return "noun";
@@ -74,17 +78,84 @@ export class Panel {
             );
         }
 
-        // 2. 词条列表
+        // 2. 复合词突出展示（单一结果时，在词条列表前）
+        if (this.headwords.length === 1) {
+            var hw0 = this.headwords[0];
+            var isCompound = false;
+            var compoundParts = null;
+            if (this.deconstruction && this.deconstruction.length > 0) {
+                isCompound = true;
+                compoundParts = this.deconstruction;
+            } else if (hw0.grammar && hw0.grammar.indexOf("comp") >= 0) {
+                isCompound = true;
+            }
+            if (isCompound) {
+                var compHtml = "";
+                if (compoundParts) {
+                    var compDecon = [];
+                    for (var di = 0; di < compoundParts.length; di++) {
+                        compDecon.push('<span class="dpd-decomp">' + self._e(compoundParts[di]) + "</span>");
+                    }
+                    compHtml = compDecon.join(" + ");
+                } else if (hw0.construction) {
+                    compHtml = '<span class="dpd-decomp">' + self._e(hw0.construction) + "</span>";
+                }
+                if (compHtml) {
+                    parts.push('<div class="dpd-compound">' + compHtml + "</div>");
+                }
+            }
+        }
+
+        // 3. 词条列表
         for (var hi = 0; hi < this.headwords.length; hi++) {
             var hw = this.headwords[hi];
             var bodyParts = [];
 
-            // 释义：词性. 词义
+            // 词义放第一行
             var meaningLine = (hw.pos || "") + ". " + (hw.meaning_1 || "");
             if (hw.meaning_lit) {
                 meaningLine += " (lit. " + hw.meaning_lit + ")";
             }
-            bodyParts.push('<div class="dpd-meaning">' + self._e(meaningLine) + "</div>");
+            bodyParts.push('<div class="dpd-line">' + self._e(meaningLine) + "</div>");
+
+            // 词条信息块（lemma / grammar / root family / root / construction）
+            var infoParts = [];
+
+            // Lemma（清理尾部的编号）
+            var cleanLemma = self._cleanLemma(hw.lemma_1);
+            infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Lemma</span> ' + self._e(cleanLemma) + "</div>");
+
+            // Grammar
+            if (hw.grammar) {
+                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Grammar</span> ' + self._e(hw.grammar) + "</div>");
+            }
+
+            // Root Family
+            if (hw.family_root) {
+                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root Family</span> <span class="dpd-root">' + self._e(hw.family_root) + "</span></div>");
+            }
+
+            // Root
+            if (hw.root_key) {
+                var root = self.query.getRoot(hw.root_key);
+                if (root) {
+                    var rootText = self._e(hw.root_key);
+                    if (root.root_sign) rootText += " " + self._e(root.root_sign);
+                    if (root.root_meaning) rootText += " (" + self._e(root.root_meaning) + ")";
+                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> <span class="dpd-root">' + rootText + "</span></div>");
+                } else {
+                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> <span class="dpd-root">' + self._e(hw.root_key) + "</span></div>");
+                }
+            }
+
+            // Construction
+            if (hw.construction) {
+                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Construction</span> ' + self._e(hw.construction) + "</div>");
+            }
+
+            if (infoParts.length > 0) {
+                bodyParts.push('<div class="dpd-info-block">' + infoParts.join("\n") + "</div>");
+            }
 
             // 变格表
             if (hw.stem && hw.pattern) {
@@ -120,7 +191,7 @@ export class Panel {
             parts.push(
                 '<div class="dpd-entry">'
                 + '<div class="dpd-entry-header" data-id="' + hw.id + '">'
-                + '<span class="dpd-entry-lemma">' + self._e(hw.lemma_1) + '</span>'
+                + '<span class="dpd-entry-lemma">' + self._e(self._cleanLemma(hw.lemma_1)) + '</span>'
                 + '<span class="dpd-entry-pos">' + self._e(hw.pos || "") + '</span>'
                 + '<span class="dpd-entry-meaning">' + self._truncate(self._e(hw.meaning_1 || ""), 50) + '</span>'
                 + '<span class="dpd-entry-toggle">\u25B6</span>'
@@ -346,10 +417,15 @@ export class Panel {
             + "border:1px solid #e8d5c0;border-top:none;border-radius:0 0 4px 4px;"
             + "background:#fffcf8;"
             + "}"
-            + ".dpd-meaning{font-size:13px;color:#333;margin:4px 0 8px;padding:4px 8px;"
-            + "background:#faf6f1;border-radius:4px;}"
+            /* 词条信息块 — 统一样式 */
+            + ".dpd-info-block{padding-left:10px;margin:2px 0 6px;font-size:12px;line-height:1.7;}"
+            + ".dpd-line{padding-left:10px;font-size:13px;color:#333;line-height:1.7;}"
+            + ".dpd-info{display:flex;gap:6px;font-size:12px;line-height:1.7;}"
+            + ".dpd-info-label{color:#7f8c8d;min-width:80px;flex-shrink:0;font-weight:500;}"
+            + ".dpd-root{font-weight:600;color:#2d5a27;}"
             + ".dpd-decon{padding:5px 8px;margin:6px 0;background:#f0f7ee;border-radius:4px;font-size:12px;color:#333;}"
             + ".dpd-decomp{font-weight:600;color:#2d5a27;}"
+            + ".dpd-compound{padding:6px 10px;margin:6px 0;background:#eef6ff;border:1px solid #bdd7f5;border-radius:4px;font-size:13px;font-weight:600;color:#1a4a7a;text-align:center;}"
             + ".dpd-grammar{padding:4px 8px;margin:4px 0;font-size:12px;color:#555;}"
             + ".dpd-table-scroll{overflow-x:auto;margin:4px 0;}"
             + ".dpd-inflection-table{border-collapse:collapse;font-size:12px;}"
