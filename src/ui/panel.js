@@ -59,11 +59,31 @@ export class Panel {
     }
 
     // ── 构建 ──────────────────────────────────────────
+    _barLabel() {
+        var first = this.headwords[0];
+        var label = this._e(this._cleanLemma(first.lemma_1));
+        if (this.headwords.length > 1) {
+            label += " +" + (this.headwords.length - 1);
+        }
+        return label;
+    }
+
     _buildHTML() {
         var parts = [];
         var self = this;
 
-        // 1. 曲折分析表（始终显示）
+        // 0. 顶部切换栏
+        parts.push(
+            '<div class="dpd-bar2">'
+            + '<span class="dpd-bar2-icon">\u25BC</span>'
+            + '<span>DPD \u67E5\u8BE2\u7ED3\u679C\uFF1A</span>'
+            + '<span class="dpd-bar2-word">' + this._barLabel() + '</span>'
+            + '<span class="dpd-bar2-hint">\u6536\u8D77</span>'
+            + "</div>"
+            + '<div class="dpd-body-content">'
+        );
+
+        // 1. 曲折分析表
         var analyses = this._getAnalyses();
         if (analyses.length > 0) {
             this._analyses = analyses;
@@ -213,6 +233,7 @@ export class Panel {
             );
         }
 
+        parts.push("</div>");
         return parts.join("\n");
     }
 
@@ -396,6 +417,20 @@ export class Panel {
         }
     }
 
+    _bindBar2Toggle() {
+        var bar = this._el.querySelector(".dpd-bar2");
+        var body = this._el.querySelector(".dpd-body-content");
+        var icon = bar && bar.querySelector(".dpd-bar2-icon");
+        var hint = bar && bar.querySelector(".dpd-bar2-hint");
+        if (!bar || !body) return;
+        bar.addEventListener("click", function () {
+            var hidden = body.style.display === "none";
+            body.style.display = hidden ? "block" : "none";
+            icon.textContent = hidden ? "\u25BC" : "\u25B6";
+            hint.textContent = hidden ? "\u6536\u8D77" : "\u5C55\u5F00";
+        });
+    }
+
     _bindEntryToggles() {
         var headers = this._el.querySelectorAll(".dpd-entry-header");
         for (var hi = 0; hi < headers.length; hi++) {
@@ -429,6 +464,7 @@ export class Panel {
         if (this._autoShow) {
             this._el.innerHTML = this._buildHTML() + this._styleHTML();
             referenceEl.parentNode.insertBefore(this._el, referenceEl);
+            this._bindBar2Toggle();
             this._bindEntryToggles();
             this._bindSort();
             this._bindExpand(this._el.querySelector("#dpd-analysis-tbl"));
@@ -440,6 +476,7 @@ export class Panel {
                 if (self._fullRendered) return;
                 self._fullRendered = true;
                 self._el.innerHTML = self._buildHTML() + self._styleHTML();
+                self._bindBar2Toggle();
                 self._bindEntryToggles();
                 self._bindSort();
                 self._bindExpand(self._el.querySelector("#dpd-analysis-tbl"));
@@ -515,6 +552,15 @@ export class Panel {
             + ".dpd-case-label{width:50px;}"
             + ".dpd-empty{border:none!important;background:transparent!important;}"
             + ".dpd-hl{background:#fde68a;color:#92400e;font-weight:600;border-radius:2px;padding:0 2px;}"
+            + ".dpd-bar2{"
+            + "display:flex;align-items:center;gap:8px;padding:7px 12px;margin:4px 0;"
+            + "border:1px solid #dce0e5;border-radius:6px;background:#f8f9fa;"
+            + "cursor:pointer;user-select:none;font-size:13px;"
+            + "}"
+            + ".dpd-bar2:hover{background:#eef1f5;}"
+            + ".dpd-bar2-icon{color:#64748b;font-size:11px;}"
+            + ".dpd-bar2-word{font-weight:600;color:#475569;flex:1;}"
+            + ".dpd-bar2-hint{color:#94a3b8;font-size:12px;}"
             + ".dpd-prompt{"
             + "display:flex;align-items:center;gap:8px;padding:8px 12px;margin:4px 0;"
             + "border:1px solid #d4a574;border-radius:6px;background:#fef9f0;"
