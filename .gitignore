@@ -7,4 +7,4 @@ dist/
 *.log
 .wrangler/
 
-data/*.db
+!data/dpd-web.db.gz
