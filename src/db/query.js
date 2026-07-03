@@ -62,20 +62,19 @@ export class Query {
      */
     getHeadwords(ids) {
         if (!this.db || !ids || !ids.length) return [];
-        const idSet = new Set(ids);
-        const stmt = this._prepare(
-            "getHeadwords",
-            `SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit
-             FROM headwords WHERE id IN (${ids.map(() => "?").join(",")})`
+        // 不缓存 stmt，因为 ? 数量每次可能不同
+        var stmt = this.db.prepare(
+            "SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit"
+            + " FROM headwords WHERE id IN (" + ids.map(function () { return "?"; }).join(",") + ")"
         );
         stmt.bind(ids);
-        const map = new Map();
+        var map = {};
         while (stmt.step()) {
-            const row = stmt.getAsObject();
-            map.set(row.id, row);
+            var row = stmt.getAsObject();
+            map[row.id] = row;
         }
-        stmt.reset();
-        return ids.filter((id) => map.has(id)).map((id) => map.get(id));
+        stmt.free();
+        return ids.filter(function (id) { return map[id]; }).map(function (id) { return map[id]; });
     }
 
     /**
