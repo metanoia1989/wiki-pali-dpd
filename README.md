@@ -120,7 +120,7 @@ wiki-pali-dpd/
 │   ├── inflection/                # 变格表渲染
 │   ├── storage/                   # IndexedDB 缓存 + 查询历史
 │   └── ui/                        # 注入 UI 组件
-├── docs/technical/                # 技术文档
+├── docs/                # 技术文档
 └── dist/                          # 构建输出
 ```
 
