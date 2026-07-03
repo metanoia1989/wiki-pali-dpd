@@ -1,17 +1,16 @@
 /**
- * 工具条：放在 WikiPali 搜索结果上方，点击展开变格表/拆解。
+ * 工具条：放在 WikiPali 搜索结果上方，支持多词条展示 + 曲折分析表。
  */
 import { Renderer } from "../inflection/renderer.js";
 
 export class Panel {
-    constructor(word, headword, lookupRow, deconstruction, query) {
+    constructor(word, headwords, lookupRow, deconstruction, query) {
         this.word = word;
-        this.headword = headword;
+        this.headwords = headwords;
         this.lookupRow = lookupRow;
         this.deconstruction = deconstruction;
         this.query = query;
         this._el = null;
-        this._expanded = false;
     }
 
     remove() {
@@ -21,126 +20,270 @@ export class Panel {
         }
     }
 
-    // ── 紧凑工具条 ──────────────────────────────────────────────
-    _compactHTML() {
-        const hw = this.headword;
-        return `
-            <div class="dpd-bar">
-                <span class="dpd-bar-lemma">${this._e(hw.lemma_1)}</span>
-                <span class="dpd-bar-pos">${this._e(hw.pos || "")}</span>
-                <span class="dpd-bar-meaning">${this._e(hw.meaning_1 || "")}</span>
-                <span class="dpd-bar-toggle">▶ DPD</span>
-            </div>
-            <div class="dpd-body" style="display:none"></div>
-            ${this._styleHTML()}`;
-    }
+    _buildHTML() {
+        var parts = [];
 
-    // ── 展开内容 ─────────────────────────────────────────────────
-    _expandHTML() {
-        const hw = this.headword;
-        const parts = [];
-
-        // 释义
-        const meaning = [hw.lemma_1, hw.pos];
-        if (hw.meaning_1) meaning.push("— " + hw.meaning_1);
-        if (hw.meaning_lit) meaning.push("(lit. " + hw.meaning_lit + ")");
-        parts.push(`<div class="dpd-section">${this._e(meaning.join(" "))}</div>`);
-
-        // 变格表
-        if (hw.stem && hw.pattern) {
-            const renderer = new Renderer(this.query.getAllTemplates());
-            const tableHtml = renderer.render(hw.stem, hw.pattern);
-            if (tableHtml) {
-                parts.push(`
-                    <details class="dpd-section" open>
-                        <summary>变格表</summary>
-                        ${tableHtml}
-                    </details>`);
+        // 1. 曲折分析表
+        var analyses = this._getAnalyses();
+        if (analyses.length > 0) {
+            var rows = "";
+            for (var i = 0; i < analyses.length; i++) {
+                var a = analyses[i];
+                rows += "<tr>"
+                    + "<td>" + this._e(a.pos || "") + "</td>"
+                    + "<td>" + this._e(a.gender || "") + "</td>"
+                    + "<td>" + this._e(a.case || "") + "</td>"
+                    + "<td>" + this._e(a.number || "") + "</td>"
+                    + "<td class='dpd-of'>&nbsp;</td>"
+                    + "<td>" + this._e(a.lemma || "") + "</td>"
+                    + "</tr>";
             }
+            parts.push(
+                '<div class="dpd-analysis-wrap"><table class="dpd-analysis">'
+                + "<thead><tr><th>pos</th><th></th><th></th><th></th><th></th><th>word</th></tr></thead>"
+                + "<tbody>" + rows + "</tbody>"
+                + "</table></div>"
+            );
         }
 
-        // 复合词拆解
-        if (this.deconstruction && this.deconstruction.length > 0) {
-            parts.push(`
-                <div class="dpd-section dpd-decon">
-                    复合词：${this.deconstruction
-                        .map((d) => `<span class="dpd-decomp">${this._e(d)}</span>`)
-                        .join(" + ")}
-                </div>`);
-        }
+        // 2. 词条列表（默认折叠）
+        for (var hi = 0; hi < this.headwords.length; hi++) {
+            var hw = this.headwords[hi];
+            var bodyParts = [];
 
-        // 语法信息
-        if (this.lookupRow.grammar) {
-            parts.push(`<div class="dpd-section">${this._e(this.lookupRow.grammar)}</div>`);
+            // 释义：词性. 词义
+            var meaningLine = (hw.pos || "") + ". " + (hw.meaning_1 || "");
+            if (hw.meaning_lit) {
+                meaningLine += " (lit. " + hw.meaning_lit + ")";
+            }
+            bodyParts.push('<div class="dpd-meaning">' + this._e(meaningLine) + "</div>");
+
+            // 变格表（直接展示）
+            if (hw.stem && hw.pattern) {
+                var renderer = new Renderer(this.query.getAllTemplates());
+                var tableHtml = renderer.render(hw.stem, hw.pattern, this.word);
+                if (tableHtml) {
+                    bodyParts.push(
+                        '<div class="dpd-table-scroll">' + tableHtml + "</div>"
+                    );
+                }
+            }
+
+            // 复合词拆解
+            if (this.deconstruction && this.deconstruction.length > 0) {
+                var deconParts = [];
+                for (var di = 0; di < this.deconstruction.length; di++) {
+                    deconParts.push(
+                        '<span class="dpd-decomp">' + this._e(this.deconstruction[di]) + "</span>"
+                    );
+                }
+                bodyParts.push(
+                    '<div class="dpd-decon">'
+                    + "\u62C6\u89E3\uFF1A" + deconParts.join(" + ")
+                    + "</div>"
+                );
+            }
+
+            // 语法信息
+            if (this.lookupRow.grammar) {
+                bodyParts.push(
+                    '<div class="dpd-grammar">' + this._e(this.lookupRow.grammar) + "</div>"
+                );
+            }
+
+            parts.push(
+                '<div class="dpd-entry">'
+                + '<div class="dpd-entry-header" data-id="' + hw.id + '">'
+                + '<span class="dpd-entry-lemma">' + this._e(hw.lemma_1) + '</span>'
+                + '<span class="dpd-entry-pos">' + this._e(hw.pos || "") + '</span>'
+                + '<span class="dpd-entry-meaning">' + this._truncate(this._e(hw.meaning_1 || ""), 50) + '</span>'
+                + '<span class="dpd-entry-toggle">\u25B6</span>'
+                + "</div>"
+                + '<div class="dpd-entry-body" style="display:none">'
+                + bodyParts.join("\n")
+                + "</div>"
+                + "</div>"
+            );
         }
 
         return parts.join("\n");
     }
 
-    // ── 点击切换 ─────────────────────────────────────────────────
-    _bindToggle() {
-        const bar = this._el.querySelector(".dpd-bar");
-        const body = this._el.querySelector(".dpd-body");
-        const toggle = this._el.querySelector(".dpd-bar-toggle");
+    // ── 曲折分析 ──────────────────────────────────────────
+    _getAnalyses() {
+        var templates = this.query.getAllTemplates();
+        var results = [];
 
-        bar.addEventListener("click", () => {
-            this._expanded = !this._expanded;
-            if (this._expanded) {
-                body.innerHTML = this._expandHTML();
-                body.style.display = "block";
-                toggle.textContent = "▼ DPD";
-            } else {
-                body.style.display = "none";
-                toggle.textContent = "▶ DPD";
+        for (var hi = 0; hi < this.headwords.length; hi++) {
+            var hw = this.headwords[hi];
+            if (!hw.stem || !hw.pattern) continue;
+
+            var tmpl = this._resolveTemplate(hw.pattern, templates);
+            if (!tmpl || !tmpl.data) continue;
+
+            var tableData = JSON.parse(tmpl.data);
+            var stem = hw.stem.replace(/[!*]/g, "");
+            var colHeaders = tableData[0] || [];
+            var matched = false;
+
+            for (var rowIdx = 1; rowIdx < tableData.length; rowIdx++) {
+                var row = tableData[rowIdx];
+                var caseLabel = row[0]?.[0] || "";
+
+                for (var colIdx = 1; colIdx < row.length; colIdx += 2) {
+                    var suffixes = row[colIdx];
+                    if (!Array.isArray(suffixes)) continue;
+
+                    var colHeader = colHeaders[colIdx]?.[0] || "";
+                    var parts = colHeader.trim().split(/\s+/);
+                    var gender = parts[0] || "";
+                    var number = parts[1] || "";
+
+                    for (var si = 0; si < suffixes.length; si++) {
+                        if (stem + suffixes[si] === this.word) {
+                            results.push({
+                                pos: hw.pos,
+                                gender: gender,
+                                case: caseLabel,
+                                number: number,
+                                lemma: hw.lemma_1,
+                            });
+                            matched = true;
+                        }
+                    }
+                }
             }
-        });
+
+            if (!matched) {
+                results.push({
+                    pos: hw.pos,
+                    gender: this._deriveGender(hw.pattern),
+                    case: "\u2014",
+                    number: "\u2014",
+                    lemma: hw.lemma_1,
+                });
+            }
+        }
+
+        return results;
+    }
+
+    _resolveTemplate(pattern, templates) {
+        var tmpl = templates.get(pattern);
+        if (!tmpl) return null;
+        var depth = 0;
+        while (tmpl.like && tmpl.like.indexOf("irreg") !== 0 && depth < 5) {
+            var next = templates.get(tmpl.like);
+            if (!next || next === tmpl) break;
+            if (next.data) return next;
+            tmpl = next;
+            depth++;
+        }
+        return tmpl;
+    }
+
+    _deriveGender(pattern) {
+        if (/\bmasc\b/.test(pattern)) return "masc";
+        if (/\bfem\b/.test(pattern)) return "fem";
+        if (/\bnt\b/.test(pattern)) return "nt";
+        return "";
+    }
+
+    // ── 交互 ──────────────────────────────────────────
+    _bindEntryToggles() {
+        var headers = this._el.querySelectorAll(".dpd-entry-header");
+        for (var hi = 0; hi < headers.length; hi++) {
+            headers[hi].addEventListener("click", function () {
+                var body = this.nextElementSibling;
+                var toggle = this.querySelector(".dpd-entry-toggle");
+                var isHidden = body.style.display === "none";
+                body.style.display = isHidden ? "block" : "none";
+                toggle.textContent = isHidden ? "\u25BC" : "\u25B6";
+            });
+        }
     }
 
     injectBefore(referenceEl) {
         this._el = document.createElement("div");
-        this._el.className = "dpd-toolbar";
-        this._el.innerHTML = this._compactHTML();
+        this._el.className = "dpd-wrap";
+        this._el.innerHTML = this._buildHTML() + this._styleHTML();
         referenceEl.parentNode.insertBefore(this._el, referenceEl);
-        this._bindToggle();
+        this._bindEntryToggles();
     }
 
-    // ── 样式 ─────────────────────────────────────────────────────
     _styleHTML() {
-        return `<style>
-            .dpd-toolbar {
-                font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-                margin:6px 0;border-radius:6px;overflow:hidden;
-                border:1px solid #d4a574;background:#fef9f0;
-            }
-            .dpd-bar {
-                display:flex;align-items:center;gap:8px;
-                padding:7px 12px;cursor:pointer;user-select:none;
-                font-size:14px;
-            }
-            .dpd-bar:hover { background:#fdf3e6; }
-            .dpd-bar-lemma { font-weight:700;color:#8b4513;font-size:15px; }
-            .dpd-bar-pos { color:#888;font-style:italic;font-size:12px; }
-            .dpd-bar-meaning { color:#444;font-size:13px;flex:1; }
-            .dpd-bar-toggle { color:#8b4513;font-weight:600;font-size:12px; }
-            .dpd-body { padding:4px 12px 12px; }
-            .dpd-section { margin:6px 0;font-size:13px;color:#333; }
-            .dpd-section summary { cursor:pointer;color:#8b4513;font-weight:600;font-size:13px; }
-            .dpd-decon { padding:5px 8px;background:#f0f7ee;border-radius:4px; }
-            .dpd-decomp { font-weight:600;color:#2d5a27; }
-            .dpd-inflection-table {
-                border-collapse:collapse;width:100%;margin:4px 0;font-size:12px;
-            }
-            .dpd-inflection-table th,.dpd-inflection-table td {
-                border:1px solid #d4a574;padding:2px 6px;text-align:center;
-            }
-            .dpd-inflection-table th { background:#f5e6d3;font-weight:600; }
-            .dpd-case-label { width:50px; }
-            .dpd-empty { border:none !important;background:transparent !important; }
-        </style>`;
+        return "<style>"
+            /* 外层容器 — 无背景无边框，仅顶部优雅分隔 */
+            + ".dpd-wrap{"
+            + "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
+            + "margin:8px 0;padding:4px 0;"
+            + "border-top:1px solid #dce0e5;"
+            + "}"
+
+            /* 曲折分析表 */
+            + ".dpd-analysis-wrap{overflow-x:auto;margin:6px 0 10px;}"
+            + ".dpd-analysis{"
+            + "border-collapse:collapse;width:100%;font-size:12px;"
+            + "background:#f8fafc;"
+            + "}"
+            + ".dpd-analysis th,.dpd-analysis td{"
+            + "border:1px solid #d4dae5;padding:3px 10px;text-align:center;white-space:nowrap;"
+            + "}"
+            + ".dpd-analysis th{background:#e2e8f0;color:#334155;font-weight:600;}"
+            + ".dpd-analysis td{color:#475569;}"
+            + ".dpd-of{width:20px;min-width:20px;max-width:20px;border-left:none;border-right:none;}"
+            + ".dpd-analysis tr:hover td{background:#eef2f6;}"
+
+            /* 词条行 */
+            + ".dpd-entry{margin:3px 0;border-radius:4px;overflow:hidden;}"
+            + ".dpd-entry-header{"
+            + "display:flex;align-items:center;gap:8px;"
+            + "padding:5px 8px;cursor:pointer;user-select:none;"
+            + "border:1px solid #e8d5c0;border-radius:4px;"
+            + "background:#fdf8f2;font-size:13px;"
+            + "}"
+            + ".dpd-entry-header:hover{background:#f8efe4;}"
+            + ".dpd-entry-lemma{font-weight:600;color:#8b4513;font-size:14px;}"
+            + ".dpd-entry-pos{color:#888;font-style:italic;font-size:11px;}"
+            + ".dpd-entry-meaning{"
+            + "color:#555;font-size:12px;flex:1;overflow:hidden;"
+            + "text-overflow:ellipsis;white-space:nowrap;"
+            + "}"
+            + ".dpd-entry-toggle{color:#8b4513;font-size:11px;}"
+            + ".dpd-entry-body{"
+            + "padding:0;"
+            + "border:1px solid #e8d5c0;border-top:none;border-radius:0 0 4px 4px;"
+            + "background:#fffcf8;"
+            + "}"
+
+            /* 展开后内容 */
+            + ".dpd-meaning{font-size:13px;color:#333;margin:4px 0 8px;padding:4px 8px;"
+            + "background:#faf6f1;border-radius:4px;}"
+            + ".dpd-decon{padding:5px 8px;margin:6px 0;background:#f0f7ee;border-radius:4px;font-size:12px;color:#333;}"
+            + ".dpd-decomp{font-weight:600;color:#2d5a27;}"
+            + ".dpd-grammar{padding:4px 8px;margin:4px 0;font-size:12px;color:#555;}"
+
+            /* 变格表横向滚动 */
+            + ".dpd-table-scroll{overflow-x:auto;margin:4px 0;}"
+            + ".dpd-inflection-table{border-collapse:collapse;font-size:12px;}"
+            + ".dpd-inflection-table th,.dpd-inflection-table td{"
+            + "border:1px solid #d4a574;padding:2px 6px;text-align:center;white-space:nowrap;"
+            + "}"
+            + ".dpd-inflection-table th{background:#f5e6d3;font-weight:600;color:#5c3a1e;}"
+            + ".dpd-case-label{width:50px;}"
+            + ".dpd-empty{border:none!important;background:transparent!important;}"
+            + ".dpd-hl{background:#fde68a;color:#92400e;font-weight:600;border-radius:2px;padding:0 2px;}"
+            + "</style>";
     }
 
     _e(str) {
-        const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-        return String(str).replace(/[&<>"']/g, (ch) => map[ch]);
+        var map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+        return String(str).replace(/[&<>"']/g, function (ch) { return map[ch]; });
+    }
+
+    _truncate(str, max) {
+        if (!str) return "";
+        if (str.length <= max) return str;
+        return str.slice(0, max) + "\u2026";
     }
 }

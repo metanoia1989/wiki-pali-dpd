@@ -14,9 +14,10 @@ export class Renderer {
      * Render inflection table HTML for a given stem and pattern.
      * @param {string} stem - The word stem (e.g. "loka").
      * @param {string} pattern - Template name (e.g. "masc__a").
+     * @param {string} [highlight] - Optional word to highlight in the table.
      * @returns {string} HTML table string, or empty string if template not found.
      */
-    render(stem, pattern) {
+    render(stem, pattern, highlight) {
         const tmpl = this._resolvePattern(pattern);
         if (!tmpl) return "";
 
@@ -42,11 +43,15 @@ export class Renderer {
                     html += `<th class="dpd-case-label">${this._escape(cell[0] || "")}</th>`;
                 } else if (colIdx % 2 === 1) {
                     // Inflection suffix column
+                    const cleaned = this._cleanStem(stem);
                     const forms = cell.map((suffix) => {
-                        const cleaned = this._cleanStem(stem);
-                        return cleaned + suffix;
+                        const form = cleaned + suffix;
+                        if (highlight && form === highlight) {
+                            return '<span class="dpd-hl">' + this._escape(form) + "</span>";
+                        }
+                        return this._escape(form);
                     });
-                    html += `<td>${forms.map((f) => this._escape(f)).join("<br>")}</td>`;
+                    html += `<td>${forms.join("<br>")}</td>`;
                 }
             }
             html += "</tr>";

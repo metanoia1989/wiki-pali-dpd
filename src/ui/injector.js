@@ -87,8 +87,8 @@ export class Injector {
             }
             if (!headwordIds || headwordIds.length === 0) return;
 
-            const headword = this.query.getHeadword(headwordIds[0]);
-            if (!headword) return;
+            const headwords = this.query.getHeadwords(headwordIds);
+            if (!headwords || headwords.length === 0) return;
 
             let deconstruction = null;
             if (lookupRow.deconstructor) {
@@ -101,7 +101,7 @@ export class Injector {
 
             const panel = new this.Panel(
                 word,
-                headword,
+                headwords,
                 lookupRow,
                 deconstruction,
                 this.query
@@ -113,7 +113,7 @@ export class Injector {
 
             this.history.add({
                 word,
-                headword: headword.lemma_1,
+                headword: headwords[0].lemma_1,
                 timestamp: Date.now(),
             });
         } catch (err) {

@@ -56,6 +56,29 @@ export class Query {
     }
 
     /**
+     * Get multiple headwords by ids. Preserves order of input ids.
+     * @param {number[]} ids - Array of headword IDs.
+     * @returns {object[]}
+     */
+    getHeadwords(ids) {
+        if (!this.db || !ids || !ids.length) return [];
+        const idSet = new Set(ids);
+        const stmt = this._prepare(
+            "getHeadwords",
+            `SELECT id, lemma_1, pos, stem, pattern, meaning_1, meaning_lit
+             FROM headwords WHERE id IN (${ids.map(() => "?").join(",")})`
+        );
+        stmt.bind(ids);
+        const map = new Map();
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            map.set(row.id, row);
+        }
+        stmt.reset();
+        return ids.filter((id) => map.has(id)).map((id) => map.get(id));
+    }
+
+    /**
      * Fallback: search the headwords.inflections CSV column.
      * Covers inflected forms that dpd-db didn't write into the lookup table
      * (e.g. forms not attested in the Tipitaka corpus like sādhunā).
