@@ -6,6 +6,7 @@
 // @author       Adam Smith
 // @match        https://*.wikipali.cc/*
 // @match        https://*.wikipali.org/*
+// @match        https://chat.deepseek.com/*
 // @match        http://127.0.0.1:8080/*
 // @match        http://localhost:8080/*
 // @icon         https://pali-declension.mysticalpower.uk/favicon.svg
@@ -17,5 +18,8 @@
 // @grant        GM_setValue
 // @grant        GM_deleteValue
 // @grant        GM_registerMenuCommand
+// @grant        GM_addValueChangeListener
+// @grant        GM_removeValueChangeListener
+// @grant        GM_openInTab
 // @license      MIT
 // ==/UserScript==

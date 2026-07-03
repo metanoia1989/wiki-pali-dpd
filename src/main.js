@@ -1,12 +1,40 @@
 /**
  * Entry point: init banner → download → db ready → watch WikiPali searches.
+ *
+ * 多域名支持：
+ *   wikipali.cc / wikipali.org — DPD 词典 + LLM 选中菜单
+ *   chat.deepseek.com         — DeepSeek Agent（自动填充/回复捕获）
  */
 import VERSION from "./version.js";
 
 self.__DPD_META__ = { name: "Wiki Pali DPD", version: VERSION.script };
 self.__DPD_VERSION__ = VERSION;
 
-self.__DPD_MAIN__ = (async () => {
+// ── 域名路由 ──────────────────────────────────────────
+var host = location.hostname;
+var isDeepSeek = host.indexOf("chat.deepseek.com") >= 0
+    || host.indexOf("deepseek.com") >= 0;
+
+if (isDeepSeek) {
+    // DeepSeek Agent：监听 GM storage 请求，自动填充并回复
+    self.__DPD_MAIN__ = (async function () {
+        try {
+            var mod = await import("./llm/deepseek-agent.js");
+            var agent = new mod.DeepSeekAgent();
+            agent.start();
+            self.__DPD = { agent: agent };
+            console.log("[DPD] DeepSeek Agent 已启动");
+        } catch (e) {
+            console.error("[DPD] 启动 DeepSeek Agent 失败:", e);
+        }
+    })();
+} else {
+    // WikiPali 主逻辑
+    self.__DPD_MAIN__ = _initWikiPali();
+}
+
+// ── WikiPali 初始化 ───────────────────────────────────
+async function _initWikiPali() {
     const { Cache } = await import("./storage/cache.js");
     const { Loader } = await import("./db/loader.js");
     const { Query } = await import("./db/query.js");
@@ -115,17 +143,46 @@ self.__DPD_MAIN__ = (async () => {
     GM_registerMenuCommand("⚙️ 设置", () => Settings.show());
     GM_registerMenuCommand("📜 查询历史", () => history.show());
 
+    // 启动 LLM 模块（选中文本浮动菜单 + DeepSeek 通信）
+    // 默认关闭，通过菜单命令或设置面板开启
+    var llm = null;
+    var LlmMod;
+    try {
+        LlmMod = (await import("./llm/llm-main.js")).LlmMain;
+        GM_registerMenuCommand(
+            "🤖 LLM 选中浮窗" + (LlmMod.isEnabled() ? " ✅" : ""),
+            function () {
+                var on = LlmMod.toggle();
+                if (on) {
+                    llm = new LlmMod();
+                    llm.start();
+                    self.__DPD.llm = llm;
+                    _toast("LLM 选中浮窗 \u2705 已开启");
+                } else if (llm) {
+                    llm.stop();
+                    llm = null;
+                    self.__DPD.llm = null;
+                    _toast("LLM 选中浮窗 \u274C 已关闭");
+                }
+            }
+        );
+        llm = new LlmMod();
+        llm.start();
+    } catch (e) {
+        console.warn("[DPD] LLM 模块未加载（可忽略）:", e);
+    }
+
     // 启动监听
     const injector = new Injector(query, Panel, history);
     injector.start();
 
-    self.__DPD = { query, cache, history, injector };
+    self.__DPD = { query, cache, history, injector, llm };
 
     // 通知页面脚本：DPD 引擎就绪
     document.dispatchEvent(new CustomEvent("dpd-ready", {
         detail: { version: self.__DPD_META__.version },
     }));
-})();
+}
 
 function _initBanner() {
     const div = document.createElement("div");
@@ -176,4 +233,23 @@ function _initBanner() {
             }
         </style>`;
     return div;
+}
+
+/** 短暂提示（2s 自动消失） */
+function _toast(msg) {
+    var el = document.createElement("div");
+    el.textContent = msg;
+    Object.assign(el.style, {
+        position: "fixed", bottom: "24px", left: "50%", transform: "translateX(-50%)",
+        background: "#333", color: "#fff", padding: "10px 20px", borderRadius: "8px",
+        fontSize: "14px", zIndex: "999999", fontFamily: "-apple-system,sans-serif",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+        opacity: "0", transition: "opacity .25s ease",
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(function () { el.style.opacity = "1"; });
+    setTimeout(function () {
+        el.style.opacity = "0";
+        setTimeout(function () { el.remove(); }, 300);
+    }, 2000);
 }

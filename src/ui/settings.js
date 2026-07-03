@@ -6,6 +6,7 @@ export class Settings {
         var isDebug = !!GM_getValue("dpd_debug", false);
         var maxRows = parseInt(GM_getValue("dpd_max_rows", 5), 10) || 5;
         var autoShow = GM_getValue("dpd_auto_show", true);
+        var llmEnabled = GM_getValue("dpd_llm_enabled", false);
         var ver = self.__DPD_VERSION__ || { script: "?", data: "?", dataUrl: "" };
         var curDataVer = GM_getValue("dpd_db_version", "");
 
@@ -49,6 +50,25 @@ export class Settings {
             + '">'
             + '</label>'
             + '<div style="font-size:12px;color:#888;margin:2px 0 0 92px;">超出部分折叠，点击展开</div>'
+            + '</div>'
+
+            + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#333;">'
+            + '<input type="checkbox" id="dpd-llm-enabled"'
+            + (llmEnabled ? ' checked' : '')
+            + ' style="width:16px;height:16px;">'
+            + '<span>\u270D\uFE0F LLM \u9009\u4E2D\u6D6E\u7A97\uFF08\u5B9E\u9A8C\u6027\uFF09</span>'
+            + '</label>'
+
+            /* LLM 消息数上限 */
+            + '<div style="margin:12px 0;">'
+            + '<label style="display:flex;align-items:center;gap:10px;">'
+            + '<span style="white-space:nowrap;">消息数上限</span>'
+            + '<input type="number" id="dpd-llm-max-msgs" value="' + (parseInt(GM_getValue("dpd_llm_max_msgs", 20), 10) || 20) + '"'
+            + ' min="5" max="100" style="'
+            + 'width:60px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:14px;text-align:center;'
+            + '">'
+            + '</label>'
+            + '<div style="font-size:12px;color:#888;margin:2px 0 0 92px;">到达上限自动新开对话</div>'
             + '</div>'
 
             /* 调试 */
@@ -109,6 +129,40 @@ export class Settings {
                 self.__DPD.injector._recheck();
             }
         };
+
+        // ── LLM 选中浮窗 ─────────────────────────
+        document.getElementById("dpd-llm-enabled").onchange = function () {
+            GM_setValue("dpd_llm_enabled", this.checked);
+            if (this.checked) {
+                // 尝试启动 LLM 模块
+                import("../llm/llm-main.js").then(function (mod) {
+                    if (self.__DPD && self.__DPD.llm) return;
+                    var llm = new mod.LlmMain();
+                    llm.start();
+                    if (self.__DPD) self.__DPD.llm = llm;
+                });
+            } else {
+                if (self.__DPD && self.__DPD.llm) {
+                    self.__DPD.llm.stop();
+                    self.__DPD.llm = null;
+                }
+            }
+        };
+
+        // ── LLM 消息数上限 ─────────────────────
+        var maxMsgsEl = document.getElementById("dpd-llm-max-msgs");
+        if (maxMsgsEl) {
+            maxMsgsEl.onchange = function () {
+                var val = parseInt(this.value, 10);
+                if (isNaN(val) || val < 5) val = 5;
+                if (val > 100) val = 100;
+                this.value = val;
+                GM_setValue("dpd_llm_max_msgs", val);
+                if (self.__DPD && self.__DPD.llm) {
+                    self.__DPD.llm._maxMsgs = val;
+                }
+            };
+        }
 
         // ── 调试 ──────────────────────────────────
         document.getElementById("dpd-debug").onchange = function () {
