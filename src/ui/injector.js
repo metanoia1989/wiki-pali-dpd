@@ -1,12 +1,16 @@
 /**
  * 监听 WikiPali 搜索事件，匹配 DPD 数据后插入工具条。
  *
- * WikiPali React 每次搜索会销毁重建结果容器（ID 随 tab 变化），
- * 导致注入的面板也被移除。方案：
- *   1. 事件驱动取词（input / pcd_word click），零延迟
- *   2. _pending 持久缓存最后一次查询结果
- *   3. 每次 MutationObserver 触发时检测面板是否还在 DOM 中
- *   4. 不在则重新注入
+ * 触发时机（仅在搜索确认时，不在每个字符键入时）：
+ *   1. 回车键
+ *   2. 点击搜索按钮
+ *   3. 选择 AutoComplete 下拉提示（输入框失焦 + 值变化）
+ *   4. 点击文中词 (pcd_word)
+ *
+ * DOM 特点：
+ *   - 结果容器 ID 递增 rc-tabs-N，不能缓存引用
+ *   - 搜索框 ID 递增 rc_select_N，通过 .dict_search_div 锚点定位
+ *   - React 会销毁重建节点，采用 document 级事件委托
  */
 export class Injector {
     constructor(query, Panel, history) {
@@ -15,7 +19,7 @@ export class Injector {
         this.history = history;
         this._observer = null;
         this._lastWord = "";
-        this._pending = null;   // 最后一次查询结果，持久化，不清除
+        this._pending = null;
         this._panelInstance = null;
     }
 
@@ -32,9 +36,77 @@ export class Injector {
         return el.tagName + (el.id ? "#" + el.id : "") + (el.className ? "." + el.className.trim().split(/\s+/).join(".") : "");
     }
 
+    _findInput() {
+        var container = document.querySelector(".dict_search_div");
+        if (container) {
+            var inp = container.querySelector("input");
+            if (inp) return inp;
+        }
+        return document.querySelector("input.ant-input")
+            || document.querySelector("input[id^='rc_select_']");
+    }
+
+    _getInputWord() {
+        var input = this._findInput();
+        return input ? input.value.trim().toLowerCase().normalize("NFC") : "";
+    }
+
     start() {
         var self = this;
         this._log("start");
+
+        // ── 回车 ───────────────────────────────────
+        document.addEventListener("keydown", function (e) {
+            if (e.key !== "Enter") return;
+            var container = document.querySelector(".dict_search_div");
+            if (container && container.contains(e.target)) {
+                setTimeout(function () {
+                    var val = self._getInputWord();
+                    if (val) { self._queryDpd(val); }
+                }, 0);
+            }
+        });
+
+        // ── 搜索按钮点击 ────────────────────────────
+        document.addEventListener("click", function (e) {
+            try {
+                var btn = e.target.closest("button.ant-input-search-button");
+                if (btn) {
+                    setTimeout(function () {
+                        var val = self._getInputWord();
+                        if (val) { self._queryDpd(val); }
+                    }, 0);
+                }
+            } catch (err) {
+                // closest 在 detached 元素上可能抛 DOMException
+            }
+        });
+
+        // ── 选择 AutoComplete 下拉提示 ──────────────
+        // 下拉选项在 .ant-select-dropdown 中（Ant Design 渲染到 body）
+        document.addEventListener("click", function (e) {
+            try {
+                var option = e.target.closest('div[role="option"]');
+                if (!option) return;
+                var dd = option.closest(".ant-select-dropdown");
+                if (!dd) return;
+                // 确认是搜索框的下拉，而非其他组件
+                var input = self._findInput();
+                if (!input) return;
+                setTimeout(function () {
+                    var val = self._getInputWord();
+                    if (val && val !== self._lastWord) {
+                        self._lastWord = val;
+                        self._log("autocomplete: \"" + val + "\" -> queryDpd");
+                        self._queryDpd(val);
+                    }
+                }, 50);
+            } catch (err) { /* ignore */ }
+        }, true);
+
+        // ── MutationObserver 兜底 ──────────────────
+        // 仅处理输入框失焦后的值变化（非键入时），
+        // 及面板被 React 移除后重新注入
         this._observer = new MutationObserver(function () {
             self._onBodyChange();
         });
@@ -49,24 +121,15 @@ export class Injector {
 
     _recheck() {
         this._lastWord = "";
-        this._onWordDetected();
+        var val = this._getInputWord();
+        if (val) this._queryDpd(val);
     }
 
     // ── 每次 body 变动检查 ──────────────────────────
     _onBodyChange() {
         var self = this;
 
-        // 1. 绑定搜索输入框
-        var input = document.querySelector("input#rc_select_0");
-        if (input && !input._dpd_listening) {
-            input._dpd_listening = true;
-            input.addEventListener("input", function () {
-                self._onWordDetected();
-            });
-            this._log("_onBodyChange: input bound");
-        }
-
-        // 2. 绑定文中词点击
+        // 绑定文中词点击
         var pcdWords = document.querySelectorAll("span.pcd_word");
         for (var pi = 0; pi < pcdWords.length; pi++) {
             if (!pcdWords[pi]._dpd_listening) {
@@ -75,21 +138,30 @@ export class Injector {
                     var word = this.textContent.trim().toLowerCase().normalize("NFC");
                     if (word && word !== self._lastWord) {
                         self._lastWord = word;
-                        self._log("_onWordDetected: \"" + word + "\" (pcd_word)");
+                        self._log("pcd_word: \"" + word + "\" -> queryDpd");
                         self._queryDpd(word);
                     }
                 });
             }
         }
 
-        // 3. 面板被 React 移除后重新注入
+        // 仅在输入框失焦时检查值变化（避免键入时频繁触发）
+        var input = this._findInput();
+        if (input && document.activeElement !== input) {
+            var val = this._getInputWord();
+            if (val && val !== this._lastWord) {
+                this._lastWord = val;
+                this._log("blur-detect: \"" + val + "\" -> queryDpd");
+                this._queryDpd(val);
+            }
+        }
+
+        // 面板被 React 移除后重新注入
         if (this._pending && !this._isPanelInDom()) {
             var container = this._findResultContainer();
             if (container) {
-                this._log("_onBodyChange: panel 已不在 DOM，重新注入，容器=" + this._tagSummary(container));
+                this._log("re-inject: panel 不在 DOM，容器=" + this._tagSummary(container));
                 this._doInject(container);
-            } else {
-                this._log("_onBodyChange: panel 已不在 DOM，但容器也尚未出现");
             }
         }
     }
@@ -100,21 +172,10 @@ export class Injector {
             && document.body.contains(this._panelInstance._el);
     }
 
-    // ── 检测当前词 ─────────────────────────────────
-    _onWordDetected() {
-        var word = "";
-        var input = document.querySelector("input#rc_select_0");
-        if (input) {
-            word = input.value.trim().toLowerCase().normalize("NFC");
-        }
-        if (!word || word === this._lastWord) return;
-        this._lastWord = word;
-        this._log("_onWordDetected: \"" + word + "\" (input)");
-        this._queryDpd(word);
-    }
-
-    // ── DPD 查询（缓存结果到 _pending）───────────────
+    // ── DPD 查询 ────────────────────────────────────
     _queryDpd(word) {
+        this._pending = null;
+
         var lookupRow = this.query.lookupWord(word);
         var source = "lookup";
         if (!lookupRow || !lookupRow.headwords) {
@@ -130,7 +191,7 @@ export class Injector {
         try {
             headwordIds = JSON.parse(lookupRow.headwords);
         } catch (e) {
-            this._log("_queryDpd: headwords parse fail", lookupRow.headwords);
+            this._log("_queryDpd: headwords parse fail");
             return;
         }
         if (!headwordIds || headwordIds.length === 0) return;
@@ -138,10 +199,7 @@ export class Injector {
         var headwords = this.query.getHeadwords(headwordIds);
         if (!headwords || headwords.length === 0) return;
 
-        this._log("_queryDpd: \"" + word + "\" (" + source + "), ids=", headwordIds, "count=" + headwords.length);
-        for (var hi = 0; hi < headwords.length; hi++) {
-            this._log("  #" + headwords[hi].id + " " + headwords[hi].lemma_1 + " (" + headwords[hi].pos + ")");
-        }
+        this._log("_queryDpd: \"" + word + "\" (" + source + "), " + headwords.length + " results");
 
         var deconstruction = null;
         if (lookupRow.deconstructor) {
@@ -150,20 +208,11 @@ export class Injector {
             } catch (e) { /* ignore */ }
         }
 
-        // 持久缓存查询结果（不清除，供 React 移除面板后重新注入）
-        this._pending = {
-            word: word,
-            headwords: headwords,
-            lookupRow: lookupRow,
-            deconstruction: deconstruction,
-        };
+        this._pending = { word: word, headwords: headwords, lookupRow: lookupRow, deconstruction: deconstruction };
 
-        // 尝试立即注入
         var container = this._findResultContainer();
         if (container) {
             this._doInject(container);
-        } else {
-            this._log("_queryDpd: 容器尚未出现，等待 MutationObserver");
         }
     }
 
@@ -171,32 +220,17 @@ export class Injector {
     _doInject(container) {
         if (!this._pending) return;
         var p = this._pending;
-
         this._removePanel();
 
         var panel = new this.Panel(
-            p.word,
-            p.headwords,
-            p.lookupRow,
-            p.deconstruction,
-            this.query
+            p.word, p.headwords, p.lookupRow, p.deconstruction, this.query
         );
         panel.injectBefore(container);
         this._panelInstance = panel;
 
-        var el = panel._el;
-        this._log("_doInject: injected, word=\"" + p.word + "\", el=" + this._tagSummary(el)
-            + ", parent=" + this._tagSummary(el.parentNode)
-            + ", prev=" + this._tagSummary(el.previousElementSibling)
-            + ", next=" + this._tagSummary(el.nextElementSibling)
-            + ", container=" + this._tagSummary(container)
-            + ", container.parent=" + this._tagSummary(container.parentNode));
+        this._log("_doInject: \"" + p.word + "\"");
 
-        this.history.add({
-            word: p.word,
-            headword: p.headwords[0].lemma_1,
-            timestamp: Date.now(),
-        });
+        this.history.add({ word: p.word, headword: p.headwords[0].lemma_1, timestamp: Date.now() });
     }
 
     _removePanel() {

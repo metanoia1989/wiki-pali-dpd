@@ -61,8 +61,12 @@ export class Panel {
         var analyses = this._getAnalyses();
         if (analyses.length > 0) {
             this._analyses = analyses;
+            var maxRows = parseInt(GM_getValue("dpd_max_rows", 5), 10) || 5;
+            var rowsHtml = this._renderAllRows(analyses, maxRows);
             parts.push(
-                '<div class="dpd-analysis-wrap"><table class="dpd-analysis" id="dpd-analysis-tbl">'
+                '<div class="dpd-analysis-wrap"><table class="dpd-analysis'
+                + (analyses.length > maxRows ? ' dpd-limited' : '')
+                + '" id="dpd-analysis-tbl">'
                 + '<thead><tr>'
                 + '<th data-col="0">pos <span class="dpd-sort">\u21C5</span></th>'
                 + '<th data-col="1"><span class="dpd-sort">\u21C5</span></th>'
@@ -72,7 +76,7 @@ export class Panel {
                 + '<th data-col="5">word <span class="dpd-sort">\u21C5</span></th>'
                 + "</tr></thead>"
                 + '<tbody id="dpd-analysis-body">'
-                + this._renderRows(analyses)
+                + rowsHtml
                 + "</tbody>"
                 + "</table></div>"
             );
@@ -206,17 +210,23 @@ export class Panel {
         return parts.join("\n");
     }
 
-    _renderRows(analyses) {
+    _renderAllRows(analyses, maxRows) {
         var rows = "";
         for (var i = 0; i < analyses.length; i++) {
             var a = analyses[i];
-            rows += "<tr>"
+            var cls = (maxRows && i >= maxRows) ? ' class="dpd-h"' : "";
+            rows += "<tr" + cls + ">"
                 + "<td>" + this._e(this._mapPos(a.pos)) + "</td>"
                 + "<td>" + this._e(this._normGender(a.gender)) + "</td>"
                 + "<td>" + this._e(a.case) + "</td>"
                 + "<td>" + this._e(a.number) + "</td>"
                 + "<td class='dpd-of'>&nbsp;</td>"
                 + "<td>" + this._e(a.lemma) + "</td>"
+                + "</tr>";
+        }
+        if (maxRows && analyses.length > maxRows) {
+            rows += '<tr class="dpd-x" data-n="' + analyses.length + '">'
+                + '<td colspan="6">\u5C55\u5F00\u5168\u90E8 ' + analyses.length + ' \u6761 \u25BE</td>'
                 + "</tr>";
         }
         return rows;
@@ -336,8 +346,16 @@ export class Panel {
                     if (va > vb) return self._sortDir;
                     return 0;
                 });
+                var maxRows = parseInt(GM_getValue("dpd_max_rows", 5), 10) || 5;
                 var tbody = table.querySelector("#dpd-analysis-body");
-                tbody.innerHTML = self._renderRows(self._analyses);
+                tbody.innerHTML = self._renderAllRows(self._analyses, maxRows);
+                // 排序后复位为限制视图
+                if (self._analyses.length > maxRows) {
+                    table.classList.add("dpd-limited");
+                } else {
+                    table.classList.remove("dpd-limited");
+                }
+                self._bindExpand(table);
                 self._updateSortIcons(table, col);
             });
         }
@@ -353,6 +371,22 @@ export class Panel {
             } else {
                 icons[i].textContent = "\u21C5";
             }
+        }
+    }
+
+    _bindExpand(table) {
+        var xrow = table && table.querySelector("tr.dpd-x");
+        if (xrow) {
+            var count = parseInt(xrow.getAttribute("data-n") || "0", 10);
+            xrow.addEventListener("click", function () {
+                var isLimited = table.classList.toggle("dpd-limited");
+                var td = this.querySelector("td");
+                if (isLimited) {
+                    td.textContent = "\u5C55\u5F00\u5168\u90E8 " + count + " \u6761 \u25BE";
+                } else {
+                    td.textContent = "\u6536\u8D77 \u25B4";
+                }
+            });
         }
     }
 
@@ -376,6 +410,7 @@ export class Panel {
         referenceEl.parentNode.insertBefore(this._el, referenceEl);
         this._bindEntryToggles();
         this._bindSort();
+        this._bindExpand(this._el.querySelector("#dpd-analysis-tbl"));
     }
 
     // ── 样式 ──────────────────────────────────────────
@@ -396,6 +431,15 @@ export class Panel {
             + ".dpd-analysis td{color:#475569;}"
             + ".dpd-of{width:20px;min-width:20px;max-width:20px;border-left:none;border-right:none;}"
             + ".dpd-analysis tr:hover td{background:#eef2f6;}"
+            + ".dpd-limited tr.dpd-h{display:none;}"
+            + ".dpd-limited tr.dpd-x td{"
+            + "text-align:center;cursor:pointer;color:#8b4513;font-weight:600;font-size:12px;"
+            + "background:#fefcf9;padding:6px 10px;"
+            + "}"
+            + ".dpd-limited tr.dpd-x td:hover{background:#f8efe4;}"
+            + ".dpd-limited tr.dpd-x td:after{"
+            + "content:'';display:block;height:1px;margin:0 20px;"
+            + "}"
             + ".dpd-sort{font-size:10px;margin-left:2px;color:#64748b;}"
             /* 词条 */
             + ".dpd-entry{margin:3px 0;border-radius:4px;overflow:hidden;}"
@@ -427,7 +471,7 @@ export class Panel {
             + ".dpd-decomp{font-weight:600;color:#2d5a27;}"
             + ".dpd-compound{padding:6px 10px;margin:6px 0;background:#eef6ff;border:1px solid #bdd7f5;border-radius:4px;font-size:13px;font-weight:600;color:#1a4a7a;text-align:center;}"
             + ".dpd-grammar{padding:4px 8px;margin:4px 0;font-size:12px;color:#555;}"
-            + ".dpd-table-scroll{overflow-x:auto;margin:4px 0;}"
+            + ".dpd-table-scroll{overflow-x:auto;margin:0px 0;}"
             + ".dpd-inflection-table{border-collapse:collapse;font-size:12px;}"
             + ".dpd-inflection-table th,.dpd-inflection-table td{"
             + "border:1px solid #d4a574;padding:2px 6px;text-align:center;white-space:nowrap;"
