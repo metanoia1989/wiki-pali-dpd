@@ -93,7 +93,8 @@ export class LlmMain {
     // ── 选中事件 ────────────────────────────────────
 
     _onMouseUp(e) {
-        // 鼠标左键才触发
+        // 关闭状态不响应
+        if (!GM_getValue("dpd_llm_enabled", false)) return;
         if (e.button !== 0) return;
 
         // 如果点击在已有的浮窗上，不处理
