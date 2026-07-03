@@ -222,8 +222,9 @@ export class Injector {
         var p = this._pending;
         this._removePanel();
 
+        var autoShow = GM_getValue("dpd_auto_show", true);
         var panel = new this.Panel(
-            p.word, p.headwords, p.lookupRow, p.deconstruction, this.query
+            p.word, p.headwords, p.lookupRow, p.deconstruction, this.query, autoShow
         );
         panel.injectBefore(container);
         this._panelInstance = panel;

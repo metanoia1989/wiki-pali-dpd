@@ -84,6 +84,7 @@ export default function userscriptPlugin() {
       if (isDev) return;
       await buildUserscript();
       copyDbData();
+      await writeVersionJson();
     },
 
     async buildEnd(error) {
@@ -94,6 +95,33 @@ export default function userscriptPlugin() {
       }
     },
   };
+
+  async function writeVersionJson() {
+    const versionPath = resolve(srcDir, "version.js");
+    if (!existsSync(versionPath)) {
+      console.log("[userscript] version.js not found, skipping version.json");
+      return;
+    }
+    try {
+      const mod = await import(versionPath + "?t=" + Date.now());
+      const data = mod.default || mod;
+      var sizeMb = 0;
+      if (existsSync(dbDest)) {
+        sizeMb = Math.round((readFileSync(dbDest).length / (1024 * 1024)) * 10) / 10;
+      }
+      const out = {
+        script: data.script || "",
+        data: data.data || "",
+        dataUrl: data.dataUrl || "",
+        dataSizeMb: sizeMb,
+      };
+      const jsonPath = resolve(distDir, "version.json");
+      writeFileSync(jsonPath, JSON.stringify(out, null, 2), "utf-8");
+      console.log(`[userscript] version.json -> ${jsonPath} (data ${sizeMb} MB)`);
+    } catch (err) {
+      console.error("[userscript] failed to write version.json:", err.message);
+    }
+  }
 
   // ── helpers ──────────────────────────────────────────────────────
 

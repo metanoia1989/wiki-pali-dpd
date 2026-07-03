@@ -121,7 +121,7 @@
 <!-- ══════════ HERO ══════════ -->
 <header>
   <div class="container">
-    <div class="badge">v0.2.0 &middot; Tampermonkey Userscript</div>
+    <div class="badge" id="script-version">v0.2.0 &middot; Tampermonkey Userscript</div>
     <h1>Wiki Pali DPD</h1>
     <p class="tagline">
       为 WikiPali（wikipali.cc / wikipali.org）注入巴利语词典数据 &mdash;
@@ -238,8 +238,12 @@
       <dd>DPD (Digital Pali Dictionary) &mdash; 数字巴利语词典项目</dd>
       <dt>格式</dt>
       <dd>SQLite 数据库，包含 lookup、headwords、inflection_templates、roots 四张表</dd>
-      <dt>大小</dt>
-      <dd>压缩后约 11MB，解压约 30MB</dd>
+      <dt>脚本版本</dt>
+      <dd id="dpd-ver-script">—</dd>
+      <dt>数据版本</dt>
+      <dd id="dpd-ver-data">—</dd>
+      <dt>数据大小</dt>
+      <dd id="dpd-ver-size">—</dd>
       <dt>许可</dt>
       <dd>MIT License</dd>
     </dl>
@@ -260,5 +264,18 @@
   </div>
 </footer>
 
+<script>
+fetch("version.json?t=" + Date.now()).then(function (r) { return r.json(); }).then(function (v) {
+  document.getElementById("dpd-ver-script").textContent = v.script || "\u2014";
+  document.getElementById("script-version").textContent = v.script || "\u2014";
+  document.getElementById("dpd-ver-data").textContent = v.data || "\u2014";
+  document.getElementById("dpd-ver-size").textContent = v.dataSizeMb ? v.dataSizeMb + " MB" : "\u2014";
+}).catch(function () {
+  document.getElementById("dpd-ver-script").textContent = "\u2014";
+  document.getElementById("script-version").textContent = "\u2014";
+  document.getElementById("dpd-ver-data").textContent = "\u2014";
+  document.getElementById("dpd-ver-size").textContent = "\u2014";
+});
+</script>
 </body>
 </html>

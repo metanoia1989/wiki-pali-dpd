@@ -1,7 +1,10 @@
 /**
  * Entry point: init banner → download → db ready → watch WikiPali searches.
  */
-self.__DPD_META__ = { name: "Wiki Pali DPD", version: "0.1.0" };
+import VERSION from "./version.js";
+
+self.__DPD_META__ = { name: "Wiki Pali DPD", version: VERSION.script };
+self.__DPD_VERSION__ = VERSION;
 
 self.__DPD_MAIN__ = (async () => {
     const { Cache } = await import("./storage/cache.js");
@@ -14,8 +17,8 @@ self.__DPD_MAIN__ = (async () => {
 
     const DB_CACHE_KEY = "dpd_web_db";
     const DB_VER_KEY = "dpd_db_version";
-    const DB_SCHEMA_VERSION = "20260703.1";  // schema 变更时递增
-    const DATA_URL = GM_getValue("dpd_data_url", "https://pali-declension.pages.dev/dpd-web.db.gz");
+    const DB_SCHEMA_VERSION = VERSION.data;
+    const DATA_URL = VERSION.dataUrl;
     const cache = new Cache();
     const history = new History();
 

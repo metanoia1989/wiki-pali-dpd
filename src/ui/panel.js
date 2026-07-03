@@ -4,15 +4,17 @@
 import { Renderer } from "../inflection/renderer.js";
 
 export class Panel {
-    constructor(word, headwords, lookupRow, deconstruction, query) {
+    constructor(word, headwords, lookupRow, deconstruction, query, autoShow) {
         this.word = word;
         this.headwords = headwords;
         this.lookupRow = lookupRow;
         this.deconstruction = deconstruction;
         this.query = query;
+        this._autoShow = autoShow !== false;
         this._el = null;
         this._sortCol = -1;
         this._sortDir = 1;
+        this._fullRendered = false;
     }
 
     remove() {
@@ -25,6 +27,10 @@ export class Panel {
     // ── POS 映射 ─────────────────────────────────────
     _cleanLemma(lemma) {
         return lemma.replace(/\s+\d+(\.\d+)*$/, "");
+    }
+    _lemmaNumber(lemma) {
+        var m = lemma.match(/\s+(\d+(\.\d+)*)$/);
+        return m ? m[1] : "";
     }
 
     _mapPos(pos) {
@@ -195,7 +201,7 @@ export class Panel {
             parts.push(
                 '<div class="dpd-entry">'
                 + '<div class="dpd-entry-header" data-id="' + hw.id + '">'
-                + '<span class="dpd-entry-lemma">' + self._e(self._cleanLemma(hw.lemma_1)) + '</span>'
+                + '<span class="dpd-entry-lemma">' + self._e(self._cleanLemma(hw.lemma_1)) + '<span class="dpd-entry-num">' + self._e(self._lemmaNumber(hw.lemma_1)) + '</span></span>'
                 + '<span class="dpd-entry-pos">' + self._e(hw.pos || "") + '</span>'
                 + '<span class="dpd-entry-meaning">' + self._truncate(self._e(hw.meaning_1 || ""), 50) + '</span>'
                 + '<span class="dpd-entry-toggle">\u25B6</span>'
@@ -403,14 +409,42 @@ export class Panel {
         }
     }
 
+    _promptHTML() {
+        var first = this.headwords[0];
+        var label = this._e(this._cleanLemma(first.lemma_1));
+        if (this.headwords.length > 1) {
+            label += " +" + (this.headwords.length - 1);
+        }
+        return '<div class="dpd-prompt">'
+            + '<span class="dpd-prompt-icon">\u25B6</span>'
+            + '<span>DPD \u67E5\u8BE2\u7ED3\u679C\uFF1A</span>'
+            + '<span class="dpd-prompt-word">' + label + '</span>'
+            + '<span class="dpd-prompt-hint">\u70B9\u51FB\u67E5\u770B</span>'
+            + "</div>";
+    }
+
     injectBefore(referenceEl) {
         this._el = document.createElement("div");
         this._el.className = "dpd-wrap";
-        this._el.innerHTML = this._buildHTML() + this._styleHTML();
-        referenceEl.parentNode.insertBefore(this._el, referenceEl);
-        this._bindEntryToggles();
-        this._bindSort();
-        this._bindExpand(this._el.querySelector("#dpd-analysis-tbl"));
+        if (this._autoShow) {
+            this._el.innerHTML = this._buildHTML() + this._styleHTML();
+            referenceEl.parentNode.insertBefore(this._el, referenceEl);
+            this._bindEntryToggles();
+            this._bindSort();
+            this._bindExpand(this._el.querySelector("#dpd-analysis-tbl"));
+        } else {
+            this._el.innerHTML = this._promptHTML() + this._styleHTML();
+            referenceEl.parentNode.insertBefore(this._el, referenceEl);
+            var self = this;
+            this._el.querySelector(".dpd-prompt").addEventListener("click", function () {
+                if (self._fullRendered) return;
+                self._fullRendered = true;
+                self._el.innerHTML = self._buildHTML() + self._styleHTML();
+                self._bindEntryToggles();
+                self._bindSort();
+                self._bindExpand(self._el.querySelector("#dpd-analysis-tbl"));
+            });
+        }
     }
 
     // ── 样式 ──────────────────────────────────────────
@@ -451,6 +485,7 @@ export class Panel {
             + "}"
             + ".dpd-entry-header:hover{background:#f8efe4;}"
             + ".dpd-entry-lemma{font-weight:600;color:#8b4513;font-size:14px;}"
+            + ".dpd-entry-num{color:#b8936e;font-size:11px;font-weight:400;margin-left:2px;}"
             + ".dpd-entry-pos{color:#888;font-style:italic;font-size:11px;}"
             + ".dpd-entry-meaning{"
             + "color:#555;font-size:12px;flex:1;overflow:hidden;"
@@ -480,6 +515,15 @@ export class Panel {
             + ".dpd-case-label{width:50px;}"
             + ".dpd-empty{border:none!important;background:transparent!important;}"
             + ".dpd-hl{background:#fde68a;color:#92400e;font-weight:600;border-radius:2px;padding:0 2px;}"
+            + ".dpd-prompt{"
+            + "display:flex;align-items:center;gap:8px;padding:8px 12px;margin:4px 0;"
+            + "border:1px solid #d4a574;border-radius:6px;background:#fef9f0;"
+            + "cursor:pointer;user-select:none;font-size:13px;"
+            + "}"
+            + ".dpd-prompt:hover{background:#fdf3e6;}"
+            + ".dpd-prompt-icon{color:#8b4513;font-size:11px;}"
+            + ".dpd-prompt-word{font-weight:600;color:#8b4513;flex:1;}"
+            + ".dpd-prompt-hint{color:#b8936e;font-size:12px;}"
             + "</style>";
     }
 
