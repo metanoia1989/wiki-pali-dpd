@@ -247,7 +247,7 @@ export class Panel {
                 + "<td>" + this._e(this._normGender(a.gender)) + "</td>"
                 + "<td>" + this._e(a.case) + "</td>"
                 + "<td>" + this._e(a.number) + "</td>"
-                + "<td class='dpd-of'>&nbsp;</td>"
+                + "<td class='dpd-of'>of</td>"
                 + "<td>" + this._e(a.lemma) + "</td>"
                 + "</tr>";
         }
@@ -500,7 +500,7 @@ export class Panel {
             + ".dpd-analysis th{background:#e2e8f0;color:#334155;font-weight:600;cursor:pointer;user-select:none;}"
             + ".dpd-analysis th:hover{background:#cbd5e1;}"
             + ".dpd-analysis td{color:#475569;}"
-            + ".dpd-of{width:20px;min-width:20px;max-width:20px;border-left:none;border-right:none;}"
+            + ".dpd-of{width:20px;padding: 0 2px!important;min-width:20px;max-width:20px;border-left:none;border-right:none;}"
             + ".dpd-analysis tr:hover td{background:#eef2f6;}"
             + ".dpd-limited tr.dpd-h{display:none;}"
             + ".dpd-limited tr.dpd-x td{"
