@@ -7,19 +7,19 @@ export const PRESETS = [
         id: "grammar",
         label: "语法分析",
         icon: "📖",
-        prompt: "请详细分析这个巴利语单词的语法：说明它的变格/变位、格、数、性、人称，以及连音变化（sandhi）。请用中文回答。"
+        prompt: "请分析这个巴利语单词的语法：说明它的变格/变位、格、数、性、人称，以及连音变化（sandhi），用中文回答。"
     },
     {
         id: "meaning",
         label: "释义详解",
         icon: "📝",
-        prompt: "请详细解释这个巴利语单词的含义，结合三藏（Tipitaka）上下文给出用法说明。请用中文回答。"
+        prompt: "请解释这个巴利语单词的含义，给出用法说明。"
     },
     {
         id: "compound",
         label: "复合词拆解",
         icon: "🔍",
-        prompt: "请分析这个巴利语复合词：拆解为组成部分，说明涉及的连音规则（sandhi），解释每个部分的意义。请用中文回答。"
+        prompt: "请分析这个巴利语复合词：拆解为组成部分，说明涉及的连音规则（sandhi），用中文回答。"
     },
     {
         id: "etymology",
