@@ -6,6 +6,7 @@
  *   chat.deepseek.com         — DeepSeek Agent（自动填充/回复捕获）
  */
 import VERSION from "./version.js";
+import { isDpdSite } from "./config.js";
 
 self.__DPD_META__ = { name: "Wiki Pali DPD", version: VERSION.script };
 self.__DPD_VERSION__ = VERSION;
@@ -17,6 +18,7 @@ var isDeepSeek = host.indexOf("chat.deepseek.com") >= 0
 
 if (isDeepSeek) {
     // DeepSeek Agent：监听 GM storage 请求，自动填充并回复
+    // 不需要加载词典数据
     self.__DPD_MAIN__ = (async function () {
         try {
             var mod = await import("./llm/deepseek-agent.js");
@@ -28,9 +30,13 @@ if (isDeepSeek) {
             console.error("[DPD] 启动 DeepSeek Agent 失败:", e);
         }
     })();
-} else {
-    // WikiPali 主逻辑
+} else if (isDpdSite(host)) {
+    // DPD 白名单站点：加载词典数据 + 注入器 + LLM 选中菜单
     self.__DPD_MAIN__ = _initWikiPali();
+} else {
+    // 其他 @match 站点（不应发生，仅兜底）
+    console.log("[DPD] 当前站点不在 DPD 白名单中，跳过词典加载");
+    self.__DPD_MAIN__ = Promise.resolve();
 }
 
 // ── WikiPali 初始化 ───────────────────────────────────

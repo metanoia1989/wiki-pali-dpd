@@ -151,8 +151,15 @@ export default function userscriptPlugin() {
       return;
     }
 
-    // Prepend userscript metadata block
-    const metaBlock = readFileSync(metaFile, "utf-8").trimEnd();
+    // Prepend userscript metadata block（从 meta.js 模块动态获取）
+    var metaMod;
+    try {
+      metaMod = await import(metaFile + "?t=" + Date.now());
+    } catch (_e) {
+      // 回退：直接读取文件文本（非模块场景）
+      metaMod = { default: readFileSync(metaFile, "utf-8").trimEnd() };
+    }
+    const metaBlock = (metaMod.default || "").trimEnd();
     const bundle = readFileSync(outFile, "utf-8");
     const final = metaBlock + "\n\n" + bundle;
     writeFileSync(outFile, final, "utf-8");
