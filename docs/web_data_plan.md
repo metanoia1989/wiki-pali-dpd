@@ -164,7 +164,7 @@ uv run python scripts/export/web_db.py
 
 | 层 | 选型 | 说明 |
 |----|------|------|
-| 构建工具 | **esbuild** | 打包 ESM 模块为 IIFE |
+| 构建工具 | **Vite** + esbuild | Vite 开发服务器 + esbuild 打包 IIFE |
 | 语言 | **JavaScript** | ESM 模块组织 |
 | SQLite | **sql.js** | 浏览器端 SQLite WASM |
 | 解压 | **pako**（@require） | gzip 解压 |
@@ -174,39 +174,51 @@ uv run python scripts/export/web_db.py
 
 ```
 wiki-pali-dpd/
-├── package.json              # esbuild devDependency
-├── build.js                  # esbuild 构建脚本
-├── .nvmrc                    # Node 18
-├── .gitignore                # 排除 node_modules/ dist/
-├── scripts/export/
-│   └── web_db.py             # dpd.db → dpd-web.db.gz 导出脚本
+├── package.json              # Vite + esbuild devDependency
+├── vite.config.js            # Vite 配置
+├── scripts/
+│   ├── vite-userscript.js    # Vite 插件：油猴脚本构建 + DB 数据拷贝 + version.json
+│   └── export/
+│       └── web_db.py         # dpd.db → dpd-web.db.gz 导出脚本
 ├── src/
-│   ├── meta.js               # 油猴元数据头
-│   ├── main.js               # 入口：初始化弹窗 → 下载 → 启动注入器
+│   ├── config.js             # 共享配置：站点白名单、版本号、部署 URL
+│   ├── meta.js               # 油猴元数据头模块（从 config.js 取版本号）
+│   ├── version.js            # 版本信息（从 config.js 导入）
+│   ├── main.js               # 入口：域名路由 → DeepSeek Agent / WikiPali 主逻辑
 │   ├── db/
 │   │   ├── loader.js         # fetch + ReadableStream 进度 + pako 解压
-│   │   └── query.js          # sql.js 查询封装（预编译 SQL stmt）
+│   │   └── query.js          # sql.js 查询封装（预编译 SQL stmt + CSV 兜底）
 │   ├── inflection/
 │   │   └── renderer.js       # 变格表渲染（stem+suffix→HTML）
 │   ├── ui/
-│   │   ├── injector.js       # MutationObserver 监听搜索结果
-│   │   ├── panel.js          # 折叠工具条（变格表+拆解+释义）
+│   │   ├── injector.js       # MutationObserver + 事件委托监听搜索
+│   │   ├── panel.js          # 工具条（变格表+拆解+释义）
 │   │   └── settings.js       # 设置弹窗（清缓存、版本信息）
+│   ├── llm/
+│   │   ├── deepseek-agent.js # DeepSeek 网页端 Agent（自动填充/回复）
+│   │   ├── llm-main.js       # LLM 集成入口（选中浮窗开关）
+│   │   ├── llm-panel.js      # 选中文本浮动菜单 + 拖拽/缩放
+│   │   ├── llm-cache.js      # LLM 问答记录缓存 + 展示面板
+│   │   ├── llm-communicator.js # GM storage 跨标签页通信
+│   │   └── llm-presets.js    # 预设提示词
 │   └── storage/
 │       ├── cache.js          # IndexedDB 读写封装
-│       └── history.js        # 查询历史 (localStorage)
-├── docs/technical/           # 技术文档
+│       └── history.js        # 查询历史（分页面板）
+├── docs/                     # 技术文档
 └── dist/
-    └── wiki-pali-dpd.user.js # 构建产物（~31 KB）
+    ├── wiki-pali-dpd.user.js # 构建产物（~130 KB）
+    ├── index.html            # 介绍页
+    ├── version.json          # 版本信息（构建时生成）
+    └── dpd-web.db.gz         # 词典数据（可选）
 ```
 
 ### 构建方式
 
 ```bash
 cd wiki-pali-dpd
-npm install           # 安装 esbuild
-node build.js         # 构建 → dist/wiki-pali-dpd.user.js
-node build.js --watch # 监听模式
+npm install           # 安装依赖（Vite + esbuild）
+npm run dev           # 开发：Vite 开发服务器 + 油猴脚本热更新
+npm run build         # 生产构建：打包脚本 + 拷贝 DB + 生成 version.json
 ```
 
 ### 客户端执行流程
@@ -300,14 +312,16 @@ const html = renderer.render("loka", "masc__a");
 
 | 文件 | 位置 | 大小 |
 |------|------|------|
-| 构建产物 | `dist/wiki-pali-dpd.user.js` | ~31 KB |
-| 导出数据 | `dpd-db/exporter/share/dpd-web.db.gz` | ~11 MB |
-| 数据模版 | `wiki-pali-dpd/scripts/export/web_db.py` | — |
+| 构建产物 | `dist/wiki-pali-dpd.user.js` | ~130 KB |
+| 版本信息 | `dist/version.json` | 构建时动态生成 |
+| 导出数据 | `data/dpd-web.db.gz` | ~11 MB |
+| 数据模版 | `scripts/export/web_db.py` | — |
 
 ### 开发指南
 
-1. **修改源码**：编辑 `src/` 下模块，运行 `node build.js`
-2. **测试**：将 `dist/wiki-pali-dpd.user.js` 拖入油猴管理面板
-3. **调试**：打开油猴控制台查看 `self.__DPD` 对象
+1. **修改源码**：编辑 `src/` 下模块，运行 `npm run build`
+2. **测试**：启动 dev + test 服务器，在 `http://127.0.0.1:8080/test/` 调试
+3. **调试**：打开油猴控制台查看 `self.__DPD` 对象，`GM_setValue("dpd_debug", true)` 开启详细日志
 4. **数据更新**：在 dpd-db 项目重新运行导出步骤，更新 `dpd-web.db.gz` 并上传
-5. **@match 调整**：如果目标页面 URL 变更，修改 `src/meta.js` 的 `@match` 规则后重新构建
+5. **@match 调整**：如果目标页面 URL 变更，同步修改 `src/config.js` 的 `DPD_SITES` 白名单和 `src/meta.js` 的 `@match` 规则后重新构建
+6. **公共配置**：站点白名单、版本号、数据 URL 集中在 `src/config.js`，修改一处即可

@@ -4,6 +4,10 @@
 
 wiki-pali-dpd 是一个 Tampermonkey 用户脚本，在 WikiPali 页面搜索巴利语单词时，从本地 SQLite（dpd-web.db）查询 DPD 词典数据，并将变格表、释义、复合词拆解等信息注入到搜索结果上方。
 
+脚本同时支持 chat.deepseek.com（LLM Agent），通过 `src/config.js` 中的 `DPD_SITES` 白名单隔离两种场景：
+- **白名单站点**（wikipali.cc / wikipali.org / localhost）：加载词典数据 + DOM 注入
+- **白名单外站点**（chat.deepseek.com）：仅启动 DeepSeek Agent，跳过词典数据
+
 核心挑战：WikiPali 使用 React + Redux + Ant Design 架构，搜索结果容器在每次搜索时被完全销毁重建。脚本需要在不侵入 React 代码的前提下，可靠地拦截搜索事件并注入内容。
 
 ---

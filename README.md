@@ -67,7 +67,8 @@ npm run build
 ```
 dist/
 ├── index.html                   # 介绍页
-├── wiki-pali-dpd.user.js        # 油猴脚本（安装用）
+├── wiki-pali-dpd.user.js        # 油猴脚本（安装用，~130 KB）
+├── version.json                 # 版本信息（构建时自动生成）
 └── dpd-web.db.gz（可选）        # 词典数据（运行过 export-db 才会生成）
 ```
 
@@ -114,15 +115,38 @@ wiki-pali-dpd/
 │   └── export/
 │       └── web_db.py              # DPD 词典数据导出脚本
 ├── src/
-│   ├── meta.js                    # 油猴脚本元数据（@match, @grant 等）
-│   ├── main.js                    # 入口
-│   ├── db/                        # 数据库查询
+│   ├── config.js                  # 共享配置：站点白名单、版本号、部署 URL
+│   ├── meta.js                    # 油猴元数据模块（从 config.js 取版本号）
+│   ├── version.js                 # 版本信息（从 config.js 导入）
+│   ├── main.js                    # 入口：域名路由 → Agent / 词典主逻辑
+│   ├── db/                        # 数据库查询（sql.js）
 │   ├── inflection/                # 变格表渲染
-│   ├── storage/                   # IndexedDB 缓存 + 查询历史
-│   └── ui/                        # 注入 UI 组件
-├── docs/                # 技术文档
+│   ├── ui/                        # 注入 UI 组件
+│   ├── llm/                       # LLM 集成（DeepSeek Agent + 选中浮窗）
+│   └── storage/                   # IndexedDB 缓存 + 查询历史
+├── docs/                          # 技术文档
 └── dist/                          # 构建输出
 ```
+
+### 配置中心
+
+`src/config.js` 作为单一事实源，统一管理：
+
+| 配置项 | 说明 |
+|--------|------|
+| `DPD_SITES` | 词典站点白名单（仅白名单内站点才加载词典数据） |
+| `isDpdSite()` | 判断当前域名是否在白名单内 |
+| `SCRIPT_VERSION` / `DATA_VERSION` | 脚本和数据版本号 |
+| `DATA_URL` / `CHECK_URL` | 词典数据下载和版本检测 URL |
+
+`version.js` 和 `meta.js` 均从 `config.js` 导入所需配置，修改一处全局生效。
+
+### 域名路由
+
+`main.js` 根据当前域名执行不同逻辑：
+
+- `wikipali.cc` / `wikipali.org` / `localhost` — 加载词典数据，启动注入器和 LLM 选中浮窗
+- `chat.deepseek.com` — 仅启动 DeepSeek Agent，不加载词典数据（通过白名单隔离）
 
 ## 许可
 

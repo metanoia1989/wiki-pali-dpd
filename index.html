@@ -125,8 +125,11 @@
     <div class="badge" id="script-version">v0.2.0 &middot; Tampermonkey Userscript</div>
     <h1>Wiki Pali DPD</h1>
     <p class="tagline">
-      为 WikiPali（wikipali.cc / wikipali.org）注入巴利语词典数据 &mdash;
+      为 WikiPali 注入巴利语词典数据 &mdash;
       变格表、复合词拆解、释义一键查询
+    </p>
+    <p style="font-size:.95rem;opacity:.85;margin-bottom:20px;">
+      集成 DeepSeek AI 辅助：选中文本即可提问 &mdash; 语法分析、词义辨析、翻译，AI 帮你解答
     </p>
     <a href="wiki-pali-dpd.user.js" class="btn-install">
       安装脚本
@@ -170,6 +173,20 @@
         <p>
           词典数据通过 IndexedDB 缓存，首次加载后完全离线可用，
           无需重复下载。
+        </p>
+      </div>
+      <div class="feature-card">
+        <h3>AI 辅助学习</h3>
+        <p>
+          集成 DeepSeek 大语言模型。在 DPD 面板中选中文本，即可提问语法分析、
+          词义辨析、例句翻译等，AI 实时回答，辅助巴利语学习。
+        </p>
+      </div>
+      <div class="feature-card">
+        <h3>问答记录</h3>
+        <p>
+          所有 AI 问答记录自动缓存本地，支持分页浏览和展开查看完整回复，
+          方便回顾学习过程中的问题和解答。
         </p>
       </div>
     </div>
@@ -222,10 +239,63 @@
       <div class="usage-item">
         <h3>菜单项</h3>
         <p>
-          安装后在 Tampermonkey 菜单中可以看到「设置」和「查询历史」两个菜单项，
-          可用于管理缓存和查看历史搜索记录。
+          安装后在 Tampermonkey 菜单中可以看到「设置」和「查询历史」菜单项，
+          可用于管理缓存和查看历史搜索记录。LLM 相关功能通过菜单开关控制。
         </p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ LLM 集成 ══════════ -->
+<section>
+  <div class="container">
+    <h2>LLM 集成 &mdash; AI 辅助巴利语学习</h2>
+    <p style="margin-bottom:16px;font-size:.95rem;color:#555">
+      在 DPD 面板中选中任意文本，即可通过 DeepSeek 进行提问 &mdash;
+      变格解释、词义辨析、语法分析，AI 帮你解答。
+    </p>
+
+    <h3 style="font-size:1rem;color:#8b4513;margin-bottom:8px;">工作原理</h3>
+    <p style="font-size:.9rem;color:#555;line-height:1.7;margin-bottom:16px;">
+      脚本在 WikiPali 页面和 DeepSeek 页面同时运行。
+      在 WikiPali 选中文本后，通过 Tampermonkey 的跨标签页存储将请求发送给
+      DeepSeek 页面上的 Agent 模块。Agent 自动填入输入框、点击发送，
+      等待回复完成后将结果传回 WikiPali 面板。
+      整个过程无需手动复制粘贴，对话记录缓存本地，可随时回顾。
+    </p>
+
+    <h3 style="font-size:1rem;color:#8b4513;margin-bottom:8px;">使用步骤</h3>
+    <ol class="steps">
+      <li>
+        <strong>开启功能</strong> &mdash;
+        在 Tampermonkey 菜单中点击「LLM 选中浮窗」，菜单项显示 ✅ 表示已启用
+        （开启后永久生效，所有页面均有效；再次点击可关闭）
+      </li>
+      <li>
+        <strong>选中文本</strong> &mdash;
+        在 DPD 面板中（变格表、释义区等）选中感兴趣的单词或句子
+      </li>
+      <li>
+        <strong>选择提示词或输入问题</strong> &mdash;
+        从预设按钮（解释词义、分析语法、翻译等）快速选择，
+        或在输入框中自行输入问题。勾选「新开对话」可开启独立会话
+      </li>
+      <li>
+        <strong>发送并等待回复</strong> &mdash;
+        点击发送，DeepSeek 页面会自动打开（首次需登录），
+        Agent 会填入内容并发送，完成后自动将回复传回浮窗
+      </li>
+      <li>
+        <strong>查看与管理历史</strong> &mdash;
+        所有问答记录自动缓存，通过 Tampermonkey 菜单「LLM 问答记录」可浏览和回顾
+      </li>
+    </ol>
+
+    <div class="install-tip">
+      <strong>开启/关闭：</strong>
+      通过 Tampermonkey 菜单「LLM 选中浮窗」切换，开启后永久生效（菜单项显示 ✅），
+      关闭后显示 ⬜。也可在 DPD 设置面板中配置。注意：DeepSeek 页面需保持登录状态，Agent 才能正常工作。
     </div>
   </div>
 </section>
