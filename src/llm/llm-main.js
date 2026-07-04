@@ -107,7 +107,6 @@ export class LlmMain {
         if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
 
         var text = sel.toString().trim();
-        if (text.length > 200) text = text.slice(0, 200) + "\u2026";
         if (text.length < 1) return;
 
         // 判断是否在 DPD 面板内

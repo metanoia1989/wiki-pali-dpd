@@ -221,18 +221,18 @@ export class LlmPanel {
                 var dw = ev.clientX - startX;
                 var dh = ev.clientY - startY;
                 body.style.width = Math.max(260, startW + dw) + "px";
-                // body 固定高度
-                var newH = Math.max(160, startH + dh);
+                var newH = Math.max(200, startH + dh);
                 body.style.height = newH + "px";
+                body.style.overflow = "hidden";
                 // 响应区高度 = body 高度 - 其他元素高度
                 if (respArea) {
                     var other = 0;
                     [header, presets, input, options, status].forEach(function (el) {
                         if (el) other += el.offsetHeight || 0;
                     });
-                    // 加上 padding 和间距 (body padding 10+12 + margins)
-                    other += 24 + 18;
+                    other += 24;
                     respArea.style.maxHeight = Math.max(60, newH - other) + "px";
+                    respArea.style.overflowY = "auto";
                 }
             }
             function onUp() { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); }
