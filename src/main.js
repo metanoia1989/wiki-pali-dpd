@@ -153,8 +153,10 @@ async function _initWikiPali() {
     // 默认关闭，通过菜单命令或设置面板开启
     var llm = null;
     var LlmMod;
+    var LlmCacheMod;
     try {
         LlmMod = (await import("./llm/llm-main.js")).LlmMain;
+        LlmCacheMod = (await import("./llm/llm-cache.js")).LlmCache;
         GM_registerMenuCommand(
             "🤖 LLM 选中浮窗" + (LlmMod.isEnabled() ? " ✅" : ""),
             function () {
@@ -170,6 +172,12 @@ async function _initWikiPali() {
                     self.__DPD.llm = null;
                     _toast("LLM 选中浮窗 \u274C 已关闭");
                 }
+            }
+        );
+        GM_registerMenuCommand(
+            "🤖 LLM 问答记录",
+            function () {
+                if (LlmCacheMod) new LlmCacheMod().show();
             }
         );
         llm = new LlmMod();

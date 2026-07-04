@@ -97,6 +97,9 @@ export class LlmMain {
         if (!GM_getValue("dpd_llm_enabled", false)) return;
         if (e.button !== 0) return;
 
+        // 如果已有浮窗显示，不做任何事（外点关闭逻辑会处理）
+        if (this._panel._el && document.body.contains(this._panel._el)) return;
+
         // 如果点击在已有的浮窗上，不处理
         if (this._panel._el && this._panel._el.contains(e.target)) return;
 
