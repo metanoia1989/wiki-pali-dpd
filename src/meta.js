@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Wiki Pali DPD
 // @namespace    https://github.com/metanoia1989/wiki-pali-dpd
-// @version      0.4.0
+// @version      0.5.0
 // @description  DPD 词典数据：变格表、复合词拆解、释义注入
 // @author       Adam Smith
 // @match        https://*.wikipali.cc/*
