@@ -573,9 +573,12 @@ export class Panel {
             + "</style>";
     }
 
+    /** HTML 转义 + 换行替换为 / 保持一行 */
     _e(str) {
         var map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-        return String(str).replace(/[&<>"']/g, function (ch) { return map[ch]; });
+        return String(str)
+            .replace(/[&<>"']/g, function (ch) { return map[ch]; })
+            .replace(/\n/g, " / ");
     }
 
     _truncate(str, max) {
