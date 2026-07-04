@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Wiki Pali DPD
 // @namespace    https://github.com/metanoia1989/wiki-pali-dpd
-// @version      0.5.0
+// @version      0.6.0
 // @description  DPD 词典数据：变格表、复合词拆解、释义注入
 // @author       Adam Smith
-// @match        https://*.wikipali.cc/*
-// @match        https://*.wikipali.org/*
+// @match        https://*.wikipali.cc/pcd/*
+// @match        https://*.wikipali.org/pcd/*
 // @match        https://chat.deepseek.com/*
 // @match        http://127.0.0.1:8080/*
 // @match        http://localhost:8080/*
