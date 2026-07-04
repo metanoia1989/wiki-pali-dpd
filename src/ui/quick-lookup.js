@@ -19,22 +19,32 @@ export class QuickLookup {
      * @param {{ x: number, y: number }} clickPos - 点击坐标（用于定位）
      */
     static show(word, query, Panel, clickPos) {
-        var result = lookupHeadwords(query, word);
-        if (!result) return;
+        // 含 √ → 优先查词根表，跳过常规查词
+        var hasRootMark = /[√÷×*]/.test(word);
+        var result = null;
+        var rootData = null;
+
+        if (hasRootMark) {
+            var rootSearch = word.replace(/^[√÷×*]+/, "");
+            rootData = query.getRoot("\u221A" + rootSearch) || query.getRoot(rootSearch);
+        } else {
+            result = lookupHeadwords(query, word);
+            if (!result) {
+                _toast("词典中未找到 \u201C" + word + "\u201D");
+                return;
+            }
+        }
 
         _injectStyle();
+        var title = rootData ? "\u221A" + rootData.root.replace(/^[√÷×*]+/, "") : word;
 
-        var id = "dpd-quick-" + (_nextId++);
         var floatEl = document.createElement("div");
-        floatEl.id = id;
         floatEl.className = "dpd-quick-float";
 
-        // 标题栏
         var header = document.createElement("div");
         header.className = "dpd-quick-header";
-        header.innerHTML = '<span class="dpd-quick-title">' + _e(word) + '</span><span class="dpd-quick-close">&times;</span>';
+        header.innerHTML = '<span class="dpd-quick-title">' + _e(title) + '</span><span class="dpd-quick-close">&times;</span>';
 
-        // 内容区
         var body = document.createElement("div");
         body.className = "dpd-quick-body";
 
@@ -42,21 +52,19 @@ export class QuickLookup {
         floatEl.appendChild(body);
         document.body.appendChild(floatEl);
 
-        // 拖拽移动
         _makeDraggable(floatEl, header);
-
-        // 关闭
         header.querySelector(".dpd-quick-close").addEventListener("click", function () {
             floatEl.remove();
         });
 
-        // 注入 DPD 结果
-        var panel = new Panel(word, result.headwords, result.lookupRow, result.deconstruction, query, true);
-        panel.renderTo(body);
-        // 存引用方便调试
-        floatEl._panel = panel;
+        if (result) {
+            var panel = new Panel(word, result.headwords, result.lookupRow, result.deconstruction, query, true);
+            panel.renderTo(body);
+            floatEl._panel = panel;
+        } else {
+            body.innerHTML = _rootHtml(rootData);
+        }
 
-        // 定位：在点击点右侧，垂直跟随
         _position(floatEl, clickPos);
     }
 }
@@ -82,6 +90,17 @@ function _injectStyle() {
         + "}"
         + ".dpd-quick-close:hover{color:#333;background:#f0f0f0;}"
         + ".dpd-quick-body{flex:1;overflow-y:auto;padding: 2px 8px 0px;}"
+        + ".dpd-quick-nodata{text-align:center;padding:36px 16px;}"
+        + ".dpd-quick-nodata-icon{font-size:32px;color:#ddd;margin-bottom:8px;}"
+        + ".dpd-quick-nodata-msg{font-size:14px;color:#666;margin-bottom:10px;}"
+        + ".dpd-quick-nodata-msg strong{color:#8b4513;}"
+        + ".dpd-quick-nodata-hint{font-size:12px;color:#bbb;line-height:1.6;}"
+        + ".dpd-quick-root{padding:12px;}"
+        + ".dpd-quick-root-head{font-size:14px;color:#333;margin-bottom:6px;}"
+        + ".dpd-quick-root-word{font-weight:700;color:#8b4513;font-size:16px;}"
+        + ".dpd-quick-root-sign{color:#888;font-size:12px;margin-left:4px;}"
+        + ".dpd-quick-root-mean{font-size:14px;color:#555;line-height:1.6;padding:6px 10px;background:#f8f4f0;border-radius:4px;}"
+        + ".dpd-quick-root-hint{font-size:11px;color:#bbb;margin-top:8px;}"
         + "";
     document.head.appendChild(style);
 }
@@ -132,6 +151,42 @@ function _position(el, clickPos) {
 
     el.style.left = left + "px";
     el.style.top = top + "px";
+}
+
+/** 渲染词根信息卡片 */
+function _rootHtml(root) {
+    var meaning = root.root_meaning
+        ? '<div class="dpd-quick-root-mean">' + _e(root.root_meaning) + "</div>"
+        : "";
+    var sign = root.root_sign
+        ? '<span class="dpd-quick-root-sign">' + _e(root.root_sign) + "</span>"
+        : "";
+    // 避免 roots 表中已含 √ 导致重复
+    var rootClean = root.root.replace(/^[√÷×*]+/, "");
+    return '<div class="dpd-quick-root">'
+        + '<div class="dpd-quick-root-head">词根 <span class="dpd-quick-root-word">\u221A' + _e(rootClean) + '</span>' + sign + '</div>'
+        + meaning
+        + '<div class="dpd-quick-root-hint">在 DPD 词典中未查到该词的完整词条，以上为词根信息</div>'
+        + '</div>';
+}
+
+/** 短暂提示，2s 自动消失 */
+function _toast(msg) {
+    var el = document.createElement("div");
+    el.textContent = msg;
+    Object.assign(el.style, {
+        position: "fixed", bottom: "60px", left: "50%", transform: "translateX(-50%)",
+        background: "#333", color: "#fff", padding: "8px 18px", borderRadius: "6px",
+        fontSize: "13px", zIndex: "999999", fontFamily: "-apple-system,sans-serif",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+        opacity: "0", transition: "opacity .25s ease",
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(function () { el.style.opacity = "1"; });
+    setTimeout(function () {
+        el.style.opacity = "0";
+        setTimeout(function () { el.remove(); }, 300);
+    }, 2000);
 }
 
 function _e(str) {

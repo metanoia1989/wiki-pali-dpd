@@ -156,13 +156,19 @@ export class Query {
      * @param {string} root
      * @returns {object|null}
      */
+    /**
+     * Look up root info by prefix match.
+     * @param {string} root - Root name (without √).
+     * @returns {object|null} First matching root row.
+     */
     getRoot(root) {
         if (!this.db) return null;
+        // 前缀匹配，roots 表中有的记录带数字后缀（如 "bhaj 3"）
         const stmt = this._prepare(
             "getRoot",
-            `SELECT root, root_meaning FROM roots WHERE root = ?`
+            `SELECT root, root_meaning, root_sign FROM roots WHERE root LIKE ? ORDER BY LENGTH(root) LIMIT 1`
         );
-        stmt.bind([root]);
+        stmt.bind([root + "%"]);
         if (stmt.step()) {
             const row = stmt.getAsObject();
             stmt.reset();

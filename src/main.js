@@ -151,8 +151,7 @@ async function _initWikiPali() {
         var target = e.target.closest(".dpd-word-click");
         if (!target) return;
         var word = target.textContent.trim()
-            .replace(/^[√÷×*]+/, "")   // 去掉词根标记 √
-            .replace(/[\s･].*$/, "")   // 去掉尾注（如 "√sādh･3 ya" → "sādh"）
+            .replace(/[\s･].*$/, "")   // 去掉尾注（如 "√sādh･3 ya" → "√sādh"）
             .trim();
         if (word) QuickLookup.show(word, query, Panel, { x: e.clientX, y: e.clientY });
     });
