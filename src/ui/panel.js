@@ -163,9 +163,13 @@ export class Panel {
             if (hw.root_key) {
                 var root = self.query.getRoot(hw.root_key);
                 if (root) {
-                    var rootText = self._wordify(hw.root_key + (root.root_sign ? " " + root.root_sign : ""));
-                    if (root.root_meaning) rootText += " (" + self._e(root.root_meaning) + ")";
-                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> ' + rootText + "</div>");
+                    var rootClick = '<span class="dpd-word-click">' + self._e(hw.root_key) + '</span>';
+                    var rootExtra = root.root_sign ? ' ' + self._e(root.root_sign) : '';
+                    var rootMeaning = root.root_meaning ? ' (' + self._e(root.root_meaning) + ')' : '';
+                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> '
+                        + '<span class="dpd-wordify-wrap"><div class="dpd-wb">'
+                        + rootClick + rootExtra + rootMeaning
+                        + '</div></span></div>');
                 } else {
                     infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> ' + self._wordify(hw.root_key) + "</div>");
                 }
@@ -539,6 +543,8 @@ export class Panel {
             + ".dpd-line{padding-left:10px;font-size:13px;color:#333;line-height:1.7;}"
             + ".dpd-info{display:flex;gap:6px;font-size:12px;line-height:1.7;}"
             + ".dpd-info-label{color:#7f8c8d;min-width:80px;flex-shrink:0;font-weight:500;}"
+            + ".dpd-wordify-wrap{display:flex;flex-direction:column;gap:0;min-width:0;flex:1;}"
+            + ".dpd-wb{line-height:1.7;}"
             + ".dpd-word-click{color:#2d5a27;cursor:pointer;font-weight:600;}"
             + ".dpd-word-click:hover{color:#1a6b1a;text-decoration:underline;}"
             + ".dpd-decon{padding:5px 8px;margin:6px 0;background:#f0f7ee;border-radius:4px;font-size:12px;color:#333;}"
@@ -584,8 +590,9 @@ export class Panel {
 
     /**
      * 将文本中可查词的巴利语部分包装为 .dpd-word-click 可点击 span。
-     * 符号（+ √ 等）和括号英文释义保持原样显示，不做过滤。
-     * 按 \n / / 拆分为多种可能性展示。
+     * 符号（+ √ 数字等）和括号英文释义保持原样显示。
+     * 按 \n / / 拆分为多种可能性，每块独立一行。
+     * 返回结构：<span class="dpd-wordify-wrap"><div class="dpd-wb">...</div><div class="dpd-wb">...</div></span>
      */
     _wordify(text) {
         if (!text) return "";
@@ -603,16 +610,18 @@ export class Panel {
                     renderedWords.push(w);
                     continue;
                 }
-                // 纯操作符 → 显示但不点击
-                if (/^[+\-*/⋅=><&|:]+$/.test(w)) {
+                // 数字或操作符 → 显示但不点击
+                if (/^[+\-*/⋅=><&|:\d]+$/.test(w)) {
                     renderedWords.push(self._e(w));
                     continue;
                 }
                 renderedWords.push('<span class="dpd-word-click">' + self._e(w) + '</span>');
             }
-            renderedBlocks.push(renderedWords.join(" "));
+            if (renderedWords.length > 0) {
+                renderedBlocks.push('<div class="dpd-wb">' + renderedWords.join(" ") + '</div>');
+            }
         }
-        return renderedBlocks.join(" / ");
+        return '<span class="dpd-wordify-wrap">' + renderedBlocks.join("") + '</span>';
     }
 
     _truncate(str, max) {
