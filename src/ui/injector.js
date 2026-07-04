@@ -12,6 +12,8 @@
  *   - 搜索框 ID 递增 rc_select_N，通过 .dict_search_div 锚点定位
  *   - React 会销毁重建节点，采用 document 级事件委托
  */
+import { lookupHeadwords } from "../db/query.js";
+
 export class Injector {
     constructor(query, Panel, history) {
         this.query = query;
@@ -176,39 +178,20 @@ export class Injector {
     _queryDpd(word) {
         this._pending = null;
 
-        var lookupRow = this.query.lookupWord(word);
-        var source = "lookup";
-        if (!lookupRow || !lookupRow.headwords) {
-            lookupRow = this.query.searchInflections(word);
-            source = "inflections";
-            if (!lookupRow) {
-                this._log("_queryDpd: \"" + word + "\" 未找到");
-                return;
-            }
-        }
-
-        var headwordIds;
-        try {
-            headwordIds = JSON.parse(lookupRow.headwords);
-        } catch (e) {
-            this._log("_queryDpd: headwords parse fail");
+        var result = lookupHeadwords(this.query, word);
+        if (!result) {
+            this._log("_queryDpd: \"" + word + "\" 未找到");
             return;
         }
-        if (!headwordIds || headwordIds.length === 0) return;
 
-        var headwords = this.query.getHeadwords(headwordIds);
-        if (!headwords || headwords.length === 0) return;
+        this._log("_queryDpd: \"" + word + "\", " + result.headwords.length + " results");
 
-        this._log("_queryDpd: \"" + word + "\" (" + source + "), " + headwords.length + " results");
-
-        var deconstruction = null;
-        if (lookupRow.deconstructor) {
-            try {
-                deconstruction = JSON.parse(lookupRow.deconstructor);
-            } catch (e) { /* ignore */ }
-        }
-
-        this._pending = { word: word, headwords: headwords, lookupRow: lookupRow, deconstruction: deconstruction };
+        this._pending = {
+            word: word,
+            headwords: result.headwords,
+            lookupRow: result.lookupRow,
+            deconstruction: result.deconstruction,
+        };
 
         var container = this._findResultContainer();
         if (container) {

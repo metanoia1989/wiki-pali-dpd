@@ -145,6 +145,18 @@ async function _initWikiPali() {
     const query = new Query(dbBuffer, SQL);
     await query.ready;
 
+    // 快捷查词浮窗（点击 .dpd-word-click 时弹出）
+    const { QuickLookup } = await import("./ui/quick-lookup.js");
+    document.addEventListener("click", function (e) {
+        var target = e.target.closest(".dpd-word-click");
+        if (!target) return;
+        var word = target.textContent.trim()
+            .replace(/^[√÷×*]+/, "")   // 去掉词根标记 √
+            .replace(/[\s･].*$/, "")   // 去掉尾注（如 "√sādh･3 ya" → "sādh"）
+            .trim();
+        if (word) QuickLookup.show(word, query, Panel, { x: e.clientX, y: e.clientY });
+    });
+
     // 注册菜单
     GM_registerMenuCommand("⚙️ 设置", () => Settings.show());
     GM_registerMenuCommand("📜 查询历史", () => history.show());

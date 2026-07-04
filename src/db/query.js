@@ -179,3 +179,30 @@ export class Query {
         return this._stmtCache[key];
     }
 }
+
+/**
+ * 快捷查词：从 lookup 表查询，未命中则走 inflections CSV 兜底。
+ * 返回 { headwords, lookupRow, deconstruction } 或 null。
+ * 供 Injector 和 QuickLookup 复用。
+ */
+export function lookupHeadwords(query, word) {
+    var lookupRow = query.lookupWord(word);
+    if (!lookupRow || !lookupRow.headwords) {
+        lookupRow = query.searchInflections(word);
+        if (!lookupRow) return null;
+    }
+
+    var headwordIds;
+    try { headwordIds = JSON.parse(lookupRow.headwords); } catch (e) { return null; }
+    if (!headwordIds || headwordIds.length === 0) return null;
+
+    var headwords = query.getHeadwords(headwordIds);
+    if (!headwords || headwords.length === 0) return null;
+
+    var deconstruction = null;
+    if (lookupRow.deconstructor) {
+        try { deconstruction = JSON.parse(lookupRow.deconstructor); } catch (e) { /* ignore */ }
+    }
+
+    return { headwords: headwords, lookupRow: lookupRow, deconstruction: deconstruction };
+}

@@ -112,23 +112,17 @@ export class Panel {
         if (this.headwords.length === 1) {
             var hw0 = this.headwords[0];
             var isCompound = false;
-            var compoundParts = null;
             if (this.deconstruction && this.deconstruction.length > 0) {
                 isCompound = true;
-                compoundParts = this.deconstruction;
             } else if (hw0.grammar && hw0.grammar.indexOf("comp") >= 0) {
                 isCompound = true;
             }
             if (isCompound) {
                 var compHtml = "";
-                if (compoundParts) {
-                    var compDecon = [];
-                    for (var di = 0; di < compoundParts.length; di++) {
-                        compDecon.push('<span class="dpd-decomp">' + self._e(compoundParts[di]) + "</span>");
-                    }
-                    compHtml = compDecon.join(" + ");
+                if (this.deconstruction) {
+                    compHtml = self._wordify(this.deconstruction.join(" "));
                 } else if (hw0.construction) {
-                    compHtml = '<span class="dpd-decomp">' + self._e(hw0.construction) + "</span>";
+                    compHtml = self._wordify(hw0.construction);
                 }
                 if (compHtml) {
                     parts.push('<div class="dpd-compound">' + compHtml + "</div>");
@@ -162,25 +156,24 @@ export class Panel {
 
             // Root Family
             if (hw.family_root) {
-                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root Family</span> <span class="dpd-root">' + self._e(hw.family_root) + "</span></div>");
+                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root Family</span> ' + self._wordify(hw.family_root) + "</div>");
             }
 
             // Root
             if (hw.root_key) {
                 var root = self.query.getRoot(hw.root_key);
                 if (root) {
-                    var rootText = self._e(hw.root_key);
-                    if (root.root_sign) rootText += " " + self._e(root.root_sign);
+                    var rootText = self._wordify(hw.root_key + (root.root_sign ? " " + root.root_sign : ""));
                     if (root.root_meaning) rootText += " (" + self._e(root.root_meaning) + ")";
-                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> <span class="dpd-root">' + rootText + "</span></div>");
+                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> ' + rootText + "</div>");
                 } else {
-                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> <span class="dpd-root">' + self._e(hw.root_key) + "</span></div>");
+                    infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Root</span> ' + self._wordify(hw.root_key) + "</div>");
                 }
             }
 
             // Construction
             if (hw.construction) {
-                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Construction</span> ' + self._e(hw.construction) + "</div>");
+                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Construction</span> ' + self._wordify(hw.construction) + "</div>");
             }
 
             if (infoParts.length > 0) {
@@ -198,20 +191,14 @@ export class Panel {
 
             // 复合词拆解
             if (this.deconstruction && this.deconstruction.length > 0) {
-                var deconParts = [];
-                for (var di = 0; di < this.deconstruction.length; di++) {
-                    deconParts.push(
-                        '<span class="dpd-decomp">' + self._e(this.deconstruction[di]) + "</span>"
-                    );
-                }
                 bodyParts.push(
                     '<div class="dpd-decon">'
-                    + "\u62C6\u89E3\uFF1A" + deconParts.join(" + ")
+                    + "\u62C6\u89E3\uFF1A" + self._wordify(this.deconstruction.join(" "))
                     + "</div>"
                 );
             }
 
-            // 语法信息
+            // 语法信息（仅 lookup 表独有 grammar 时展示，避免与 Info 块 headwords.grammar 重复）
             if (this.lookupRow.grammar) {
                 bodyParts.push(
                     '<div class="dpd-grammar">' + self._e(this.lookupRow.grammar) + "</div>"
@@ -484,13 +471,27 @@ export class Panel {
         }
     }
 
+    /** 渲染到指定容器（QuickLookup 浮窗复用） */
+    renderTo(container) {
+        this._el = document.createElement("div");
+        this._el.className = "dpd-wrap";
+        this._el.innerHTML = this._buildHTML() + this._styleHTML();
+        container.appendChild(this._el);
+        this._bindBar2Toggle();
+        this._bindEntryToggles();
+        this._bindSort();
+        this._bindExpand(this._el.querySelector("#dpd-analysis-tbl"));
+    }
+
     // ── 样式 ──────────────────────────────────────────
     _styleHTML() {
         return "<style>"
             + ".dpd-wrap{"
             + "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
-            + "margin:8px 0;padding:4px 0;border-top:1px solid #dce0e5;"
+            + "margin:0px 0 8px;padding:4px 0;"
+            + "color:#333;background:transparent;"
             + "}"
+            + ".dpd-wrap *{color:inherit;}"
             /* 分析表 */
             + ".dpd-analysis-wrap{overflow-x:auto;margin:6px 0 10px;}"
             + ".dpd-analysis{border-collapse:collapse;width:100%;font-size:12px;background:#f8fafc;}"
@@ -538,9 +539,9 @@ export class Panel {
             + ".dpd-line{padding-left:10px;font-size:13px;color:#333;line-height:1.7;}"
             + ".dpd-info{display:flex;gap:6px;font-size:12px;line-height:1.7;}"
             + ".dpd-info-label{color:#7f8c8d;min-width:80px;flex-shrink:0;font-weight:500;}"
-            + ".dpd-root{font-weight:600;color:#2d5a27;}"
+            + ".dpd-word-click{color:#2d5a27;cursor:pointer;font-weight:600;}"
+            + ".dpd-word-click:hover{color:#1a6b1a;text-decoration:underline;}"
             + ".dpd-decon{padding:5px 8px;margin:6px 0;background:#f0f7ee;border-radius:4px;font-size:12px;color:#333;}"
-            + ".dpd-decomp{font-weight:600;color:#2d5a27;}"
             + ".dpd-compound{padding:6px 10px;margin:6px 0;background:#eef6ff;border:1px solid #bdd7f5;border-radius:4px;font-size:13px;font-weight:600;color:#1a4a7a;text-align:center;}"
             + ".dpd-grammar{padding:4px 8px;margin:4px 0;font-size:12px;color:#555;}"
             + ".dpd-table-scroll{overflow-x:auto;margin:0px 0;}"
@@ -579,6 +580,39 @@ export class Panel {
         return String(str)
             .replace(/[&<>"']/g, function (ch) { return map[ch]; })
             .replace(/\n/g, " / ");
+    }
+
+    /**
+     * 将文本中可查词的巴利语部分包装为 .dpd-word-click 可点击 span。
+     * 符号（+ √ 等）和括号英文释义保持原样显示，不做过滤。
+     * 按 \n / / 拆分为多种可能性展示。
+     */
+    _wordify(text) {
+        if (!text) return "";
+        var self = this;
+        var blocks = text.split(/\n|\s*\/\s*/);
+        var renderedBlocks = [];
+        for (var bi = 0; bi < blocks.length; bi++) {
+            var words = blocks[bi].trim().split(/\s+/);
+            var renderedWords = [];
+            for (var wi = 0; wi < words.length; wi++) {
+                var w = words[wi].trim();
+                if (!w) continue;
+                // 括号英文释义保持原样
+                if (/^[([]/.test(w) && /[)\]]$/.test(w)) {
+                    renderedWords.push(w);
+                    continue;
+                }
+                // 纯操作符 → 显示但不点击
+                if (/^[+\-*/⋅=><&|:]+$/.test(w)) {
+                    renderedWords.push(self._e(w));
+                    continue;
+                }
+                renderedWords.push('<span class="dpd-word-click">' + self._e(w) + '</span>');
+            }
+            renderedBlocks.push(renderedWords.join(" "));
+        }
+        return renderedBlocks.join(" / ");
     }
 
     _truncate(str, max) {
