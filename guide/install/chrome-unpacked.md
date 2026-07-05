@@ -15,8 +15,8 @@
 ## 第一步：下载 Tampermonkey CRX
 
 1. 打开 [Tampermonkey 官网](https://www.tampermonkey.net/)
-2. 点击页面上的 **「Download」** 或 **「下载」** 按钮
-3. 选择下载 **CRX** 格式的扩展文件
+2. 点击页面上的 "Get from Store" 或 "去商店" 右侧的**图标** 按钮
+3. 点击就会下载 **CRX** 格式的扩展文件
 
 ![Tampermonkey 官网下载 CRX](../img/screenshots/tampermonkey主页-点击下载crx扩展文件.webp)
 
@@ -73,12 +73,12 @@
 
 ## 第八步：验证与使用
 
-1. 打开 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 词典页面</a>（新标签页打开）
+1. 打开 <a href="https://next.wikipali.cc/pcd/dict/recent" target="_blank" rel="noopener">Wikipali 词典页面</a>（新标签页打开）
 2. 页面自动弹出下载数据提示，点击 **「下载」**
 
 ![下载数据提示](../img/screenshots/dpd首页下次词典数据确认弹窗.webp)
 
-3. 下载完成后在搜索框中输入 `buddha` 搜索
+3. 下载完成后在搜索框中输入 `dhamma` 搜索
 
 ![DPD 注入查询结果](../img/screenshots/dpd注入查询结果到字典单页.webp)
 

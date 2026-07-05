@@ -64,17 +64,17 @@
 
 ## 第五步：首次使用
 
-1. 打开 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 词典页面</a>（以新标签页打开）
+1. 打开 <a href="https://next.wikipali.cc/pcd/dict/recent" target="_blank" rel="noopener">Wikipali 词典页面</a>（以新标签页打开）
 2. 页面自动弹出提示框询问是否下载词典数据，点击 **「下载」**
 
 ![首次下载词典数据](../img/screenshots/dpd首页下次词典数据确认弹窗.webp)
 
 3. 等待下载完成（约需数秒到十几秒，词典数据约 18MB）
-4. 下载完成后，在搜索框输入 `buddha` 搜索即可看到 DPD 词典信息栏
+4. 下载完成后，在搜索框输入 `dhamma` 搜索即可看到 DPD 词典信息栏
 
 ## 验证安装
 
-在 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 页面</a>点击工具栏 Tampermonkey 图标，可以看到 DPD 脚本的菜单项：
+在 <a href="https://next.wikipali.cc/pcd/dict/recent" target="_blank" rel="noopener">Wikipali 页面</a>点击工具栏 Tampermonkey 图标，可以看到 DPD 脚本的菜单项：
 
 ![Tampermonkey 菜单](../img/screenshots/tampermonkey-扩展的dpd脚本菜单项.webp)
 

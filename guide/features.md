@@ -12,15 +12,15 @@ Wikipali DPD 为 Wikipali 词典查询页面提供了三大核心功能。
 - **释义（meaning）** — 中文或英文释义
 - **语法信息** — 词干、变格模式、词根等
 
-![查询结果示例](../img/screenshots/dpd注入查询结果到字典单页.webp)
+![查询结果示例](./img/screenshots/dpd注入查询结果到字典单页.webp)
 
 右侧面板模式（逐词解析）：
 
-![右侧面板展示](../img/screenshots/dpd注入查询结果到字典侧面板.webp)
+![右侧面板展示](./img/screenshots/dpd注入查询结果到字典侧面板.webp)
 
 Wikipali 逐词解析面板：
 
-![逐词解析面板](../img/screenshots/wikipali-word-analysis.webp)
+![逐词解析面板](./img/screenshots/wikipali-word-analysis.webp)
 
 ## 📊 变格表
 
@@ -62,7 +62,7 @@ Wikipali 逐词解析面板：
 
 - **首次加载** — 下载约 18MB 的词典数据（gzip 压缩，解压后约 29MB）
 
-![下载进度提示](../img/screenshots/dpd首次下载词典数据进度提示.webp)
+![下载进度提示](./img/screenshots/dpd首次下载词典数据进度提示.webp)
 
 - **后续使用** — 完全离线，无需网络连接
 - **自动检测更新** — 数据版本更新时会提示用户重新下载
@@ -76,7 +76,7 @@ Wikipali 逐词解析面板：
 - **翻译** — 翻译选中的句子或短语
 - **自定义提问** — 也可以自由输入自己的问题
 
-![LLM-辅助功能](../img/screenshots/dpd选择文件弹出llm浮窗.webp)
+![LLM-辅助功能](./img/screenshots/dpd选择文件弹出llm浮窗.webp)
 
 使用前需要：
 1. 在扩展菜单中开启 **「LLM 选中浮窗」**
@@ -96,4 +96,4 @@ Wikipali 逐词解析面板：
 - 配置自定义数据下载地址
 - 管理其他偏好设置
 
-![设置面板](../img/screenshots/dpd设置页面.webp)
+![设置面板](./img/screenshots/dpd设置页面.webp)
