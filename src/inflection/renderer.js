@@ -42,14 +42,15 @@ export class Renderer {
                     // Grammar label (Nom, Acc, ...)
                     html += `<th class="dpd-case-label">${this._escape(cell[0] || "")}</th>`;
                 } else if (colIdx % 2 === 1) {
-                    // Inflection suffix column
+                    // Inflection suffix column — 词干常规 + 语尾加粗
                     const cleaned = this._cleanStem(stem);
                     const forms = cell.map((suffix) => {
                         const form = cleaned + suffix;
+                        const display = this._escape(cleaned) + '<b>' + this._escape(suffix) + '</b>';
                         if (highlight && form === highlight) {
-                            return '<span class="dpd-hl">' + this._escape(form) + "</span>";
+                            return '<span class="dpd-hl">' + display + "</span>";
                         }
-                        return this._escape(form);
+                        return display;
                     });
                     html += `<td>${forms.join("<br>")}</td>`;
                 }
