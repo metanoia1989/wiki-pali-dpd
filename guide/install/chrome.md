@@ -36,7 +36,21 @@
 
 ![固定 Tampermonkey 到工具栏](../img/screenshots/chrome浏览器固定tampermoneky-扩展到工具栏.webp)
 
-## 第三步：安装 Wikipali DPD 脚本
+## 第三步：允许 Tampermonkey 管理用户脚本
+
+新版 Chrome 需要额外授予 Tampermonkey 管理用户脚本的权限：
+
+1. 在地址栏右侧的 Tampermonkey 图标上**右键单击**
+
+![右键 Tampermonkey 图标](../img/screenshots/chrome浏览器-右键tampermoneky图标-开管理扩展社会.webp)
+
+2. 在弹出的菜单中选择 **「管理扩展」**
+3. 在扩展详情页中开启 **「允许用户脚本」**（或 **Allow User Scripts**）开关
+4. 开启后刷新已打开的网页使其生效
+
+![允许 Tampermonkey 管理用户脚本](../img/screenshots/chrome-浏览器-tampermonkey-扩展设置页面点击允许用户脚本.webp)
+
+## 第四步：安装 Wikipali DPD 脚本
 
 1. 打开 [Wikipali DPD 安装页面](https://pali-declension.mysticalpower.uk/)
 2. 点击页面中央的 **「安装脚本」** 按钮
@@ -48,7 +62,7 @@
 
 ![Tampermonkey 安装脚本页面](../img/screenshots/tampermonkey-安装脚本页面.webp)
 
-## 第四步：首次使用
+## 第五步：首次使用
 
 1. 打开 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 词典页面</a>（以新标签页打开）
 2. 页面自动弹出提示框询问是否下载词典数据，点击 **「下载」**

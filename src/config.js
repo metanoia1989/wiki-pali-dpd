@@ -26,7 +26,7 @@ export function isDpdSite(hostname) {
 // ── 版本号 ──
 
 /** 脚本版本（逻辑变更时递增） */
-export const SCRIPT_VERSION = "0.8.0";
+export const SCRIPT_VERSION = "0.9.0";
 
 /** 数据包版本（词典数据更新时递增） */
 export const DATA_VERSION = "20260703.2";
