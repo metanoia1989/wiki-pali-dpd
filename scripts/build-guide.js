@@ -66,6 +66,16 @@ function flattenPages(pages) {
   return flat;
 }
 
+/** 根据当前页面深度计算图标标签 */
+function iconTag(icon, currentPath) {
+  if (icon && icon.startsWith("img/")) {
+    const depth = currentPath.split("/").length - 1;
+    const prefix = depth > 0 ? "../".repeat(depth) : "./";
+    return `<img src="${prefix}${icon}" alt="" class="nav-icon" />`;
+  }
+  return icon || "";
+}
+
 /** 构建侧边栏导航 HTML（所有链接带相对路径） */
 function buildNavHTML(pages, activeId, currentPath, depth) {
   if (depth === undefined) depth = 0;
@@ -75,9 +85,11 @@ function buildNavHTML(pages, activeId, currentPath, depth) {
       const active = p.id === activeId ? " active" : "";
       const cls = depth > 0 ? "nav-link nav-child" : "nav-link";
       const href = relativeHref(currentPath, p.path);
-      html += `<a href="${href}" class="${cls}${active}">${p.icon || ""} ${p.title}</a>\n`;
+      const icon = iconTag(p.icon, currentPath);
+      html += `<a href="${href}" class="${cls}${active}">${icon} ${p.title}</a>\n`;
     } else if (p.children) {
-      html += `<div class="nav-section">${p.icon || ""} ${p.title}</div>\n`;
+      const icon = iconTag(p.icon, currentPath);
+      html += `<div class="nav-section">${icon} ${p.title}</div>\n`;
       html += buildNavHTML(p.children, activeId, currentPath, depth + 1);
     }
   }
@@ -136,71 +148,29 @@ function extractTOC(html) {
   return toc;
 }
 
-/** 生成占位 SVG */
-function placeholderSVG(text) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-  <rect width="800" height="450" fill="#f0ebe4" rx="8"/>
-  <rect x="20" y="20" width="760" height="410" fill="none" stroke="#d4c5b5" stroke-width="2" rx="4" stroke-dasharray="8,4"/>
-  <text x="400" y="210" text-anchor="middle" fill="#8b4513" font-size="20" font-family="system-ui, sans-serif">${text}</text>
-  <text x="400" y="240" text-anchor="middle" fill="#a08878" font-size="13" font-family="system-ui, sans-serif">占位图片 · 待替换为实际截图</text>
-</svg>`;
-}
-
+/** 递归复制整个 img/ 目录到输出目录，缺失文件用占位 SVG 补充 */
 function ensureImages(srcDir, distDir) {
   const imgSrc = resolve(srcDir, "img");
   const imgDst = resolve(distDir, "img");
-  mkdirSync(imgDst, { recursive: true });
-  if (!existsSync(imgSrc)) mkdirSync(imgSrc, { recursive: true });
+  if (!existsSync(imgSrc)) { mkdirSync(imgSrc, { recursive: true }); return; }
 
-  const placeholders = [
-    "chrome-store-tampermonkey.svg", "chrome-install-extension.svg",
-    "chrome-pin-extension.svg", "chrome-script-install.svg",
-    "chrome-script-confirm.svg", "chrome-download-data.svg",
-    "chrome-u-extensions.svg", "chrome-u-dev-mode.svg", "chrome-u-load-unpacked.svg",
-    "firefox-addons.svg", "firefox-install-extension.svg",
-    "firefox-script-install.svg", "firefox-download-data.svg",
-    "edge-addons.svg", "edge-install-extension.svg",
-    "edge-script-install.svg", "edge-download-data.svg",
-    "dpd-demo-search.svg", "dpd-demo-result.svg", "dpd-menu.svg",
-    "dpd-settings.svg", "dpd-llm-feature.svg", "icon-tampermonkey.svg", "icon-vm.svg",
-  ];
-
-  const labels = {
-    "chrome-store-tampermonkey": "Chrome 网上应用店 · Violentmonkey",
-    "chrome-install-extension": "Violentmonkey 安装确认弹窗",
-    "chrome-pin-extension": "固定 Violentmonkey 到工具栏",
-    "chrome-script-install": "点击安装 Wiki Pali DPD 脚本",
-    "chrome-script-confirm": "Violentmonkey 安装确认页面",
-    "chrome-download-data": "首次搜索 · 下载词典数据提示",
-    "chrome-u-extensions": "chrome://extensions 扩展程序页面",
-    "chrome-u-dev-mode": "开启「开发者模式」开关",
-    "chrome-u-load-unpacked": "点击「加载已解压的扩展程序」",
-    "firefox-addons": "Firefox Add-ons · Violentmonkey 页面",
-    "firefox-install-extension": "Firefox 扩展安装确认",
-    "firefox-script-install": "Violentmonkey 安装脚本确认",
-    "firefox-download-data": "首次搜索 · 下载词典数据提示",
-    "edge-addons": "Edge 扩展 · Violentmonkey 页面",
-    "edge-install-extension": "Edge 扩展安装确认",
-    "edge-script-install": "Violentmonkey 安装脚本确认",
-    "edge-download-data": "首次搜索 · 下载词典数据提示",
-    "dpd-demo-search": "在 WikiPali 搜索巴利语单词",
-    "dpd-demo-result": "DPD 词典数据注入结果展示",
-    "dpd-menu": "Violentmonkey 菜单选项",
-    "dpd-settings": "DPD 设置面板",
-    "dpd-llm-feature": "DeepSeek AI 辅助功能展示",
-    "icon-tampermonkey": "Violentmonkey 图标",
-  };
-
-  for (const name of placeholders) {
-    const srcPath = resolve(imgSrc, name);
-    const dstPath = resolve(imgDst, name);
-    if (!existsSync(srcPath)) {
-      const label = labels[name.replace(/\.svg$/, "")] || name;
-      writeText(srcPath, placeholderSVG(label));
-      console.log(`  📄 生成占位: ${name}`);
+  function copyRecursive(currentSrc, currentDst) {
+    mkdirSync(currentDst, { recursive: true });
+    const entries = readdirSync(currentSrc, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name === ".DS_Store") continue;
+      const s = resolve(currentSrc, entry.name);
+      const d = resolve(currentDst, entry.name);
+      if (entry.isDirectory()) {
+        copyRecursive(s, d);
+      } else {
+        copyFileSync(s, d);
+      }
     }
-    copyFileSync(srcPath, dstPath);
   }
+
+  copyRecursive(imgSrc, imgDst);
+  console.log("  ✓ img/ (递归复制)");
 }
 
 // ── 主流程 ────────────────────────────────────

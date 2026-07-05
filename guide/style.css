@@ -189,6 +189,15 @@ img { max-width: 100%; height: auto; }
   letter-spacing: .5px;
   text-transform: uppercase;
 }
+.nav-icon {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 4px 0 0 !important;
+  display: inline !important;
+  vertical-align: middle;
+  border: none !important;
+  box-shadow: none !important;
+}
 .nav-link {
   display: block;
   padding: 6px 16px;
@@ -367,6 +376,59 @@ img { max-width: 100%; height: auto; }
 }
 .browse-icon-link svg { width: 36px; height: 36px; }
 .browse-icon-link span { font-size: 12px; font-weight: 500; color: var(--color-text); }
+
+/* ── Browser Cards ─────────────────────────── */
+.browser-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 1.2em 0;
+}
+.browser-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  transition: box-shadow .2s, transform .1s;
+  text-decoration: none !important;
+}
+.browser-card:hover {
+  box-shadow: 0 3px 10px rgba(0,0,0,.06);
+  transform: translateY(-1px);
+}
+.browser-card-icon {
+  width: 38px !important;
+  height: 38px !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: block;
+  flex-shrink: 0;
+}
+.browser-card-body { flex: 1; min-width: 0; }
+.browser-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+.browser-card-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+.browser-card-note {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: var(--color-hover);
+  padding: 1px 8px;
+  border-radius: 4px;
+}
 
 /* ══════════════════════════════════════════════
    Right TOC Sidebar

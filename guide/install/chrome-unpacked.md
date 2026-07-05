@@ -1,85 +1,81 @@
 # Chrome 开发者模式安装
 
-此方式适用于 **Violentmonkey**（开源脚本管理器）。通过 Chrome 的「加载已解压的扩展程序」功能安装。
+如果不能从 Chrome 网上应用店安装，可以通过开发者模式手动加载 Tampermonkey。
 
-> **推荐使用 Violentmonkey** — 开源、轻量、无广告，与 Tampermonkey 完全兼容。
+> 这种方式适合无法访问 Chrome 网上应用店的用户。
 
-## 第一步：下载 Violentmonkey
+## 前置准备
 
-从 [Violentmonkey 官网](https://violentmonkey.github.io/) 下载扩展的 ZIP 文件：
+<p style="display:flex;align-items:center;gap:8px;margin:.6em 0;">
+  <img src="../img/icons/chrome-icon.svg" alt="" style="width:24px;height:24px;display:inline;border:none;box-shadow:none;margin:0;" />
+  <span>还没有 Chrome 浏览器？</span>
+  <a href="https://www.google.cn/intl/zh-CN/chrome/" target="_blank" rel="noopener" style="font-weight:500;">下载 Chrome →</a>
+</p>
 
-1. 打开 [violentmonkey.github.io](https://violentmonkey.github.io/)
-2. 点击页面上的 **「Get it for Chrome」** 按钮
-3. 如果引导到 Chrome 网上应用店，也可以直接搜索安装
-4. 或者下载 [GitHub 上的源码 ZIP](https://github.com/violentmonkey/violentmonkey/releases)
+## 第一步：下载 Tampermonkey CRX
 
-> 如果 Chrome 网上应用店可以直接安装，建议使用商店版本，更简单。
+1. 打开 [Tampermonkey 官网](https://www.tampermonkey.net/)
+2. 点击页面上的 **「Download」** 或 **「下载」** 按钮
+3. 选择下载 **CRX** 格式的扩展文件
 
-## 第二步：打开扩展管理页面
+![Tampermonkey 官网下载 CRX](../img/screenshots/tampermonkey主页-点击下载crx扩展文件.webp)
 
-在 Chrome 地址栏输入：
+## 第二步：重命名为 ZIP 并解压
 
-```
-chrome://extensions
-```
+1. 将下载的 `.crx` 文件重命名为 `.zip`
+2. 将 ZIP 文件解压到本地文件夹
 
-按回车键进入扩展管理页面。
+![重命名 CRX 为 ZIP](../img/screenshots/tampermonkey扩展文件-重命名后缀为zip.webp)
 
-![扩展管理页面](../img/chrome-u-extensions.svg)
+![解压 ZIP 文件](../img/screenshots/tampermonkey扩展文件重命名zip后解压为文件夹.webp)
 
-## 第三步：开启开发者模式
+## 第三步：打开扩展管理页面
 
-在扩展页面右上角，找到 **「开发者模式」** 开关，将其打开。
+在 Chrome 地址栏输入 `chrome://extensions`，或通过设置菜单进入：
 
-![开启开发者模式](../img/chrome-u-dev-mode.svg)
+![打开扩展管理](../img/screenshots/chrome浏览器点击设置图标-点击扩展管理.webp)
 
-开启后，页面左上角会出现三个新按钮：「加载已解压的扩展程序」、「打包扩展程序」、「更新」。
+## 第四步：开启开发者模式
 
-## 第四步：加载已解压的扩展
+在扩展页面右上角找到 **「开发者模式」** 开关，将其打开。
 
-如果下载的是 ZIP 文件，先解压到本地文件夹。然后：
+![开启开发者模式](../img/screenshots/chrome浏览器在扩展管理里开启开发者模式.webp)
 
-1. 点击 **「加载已解压的扩展程序」** 按钮
-2. 在弹出的文件选择器中，选择解压后包含 `manifest.json` 的文件夹
+## 第五步：加载已解压的扩展
+
+1. 点击左上角的 **「加载已解压的扩展程序」** 按钮
+2. 选择第二步中解压出来的文件夹（包含 `manifest.json`）
 3. 点击「选择文件夹」
 
-![加载扩展](../img/chrome-u-load-unpacked.svg)
+![加载已解压的扩展](../img/screenshots/chrome扩展管理页面-点击左上角-加载扩展包.webp)
 
-扩展安装成功后，地址栏右侧会出现 Violentmonkey 的图标。
+## 第六步：安装 Wikipali DPD 脚本
 
-## 第五步：安装 Wiki Pali DPD 脚本
+1. 打开 [Wikipali DPD 安装页面](https://pali-declension.mysticalpower.uk/)
+2. 点击页面中央的 **「安装脚本」** 按钮
 
-1. 点击工具栏中的 Violentmonkey 图标
-2. 选择 **「新建脚本」** 旁边的 **「从 URL 安装」**
-3. 输入以下地址：
+![DPD 脚本主页点击安装](../img/screenshots/dpd脚本主页-箭头提示指向安装按钮.webp)
 
-```
-https://pali-declension.mysticalpower.uk/wiki-pali-dpd.user.js
-```
+3. Tampermonkey 会自动弹出安装页面
+4. 点击 **「安装」** 确认
 
-4. 点击「安装」，Violentmonkey 会打开脚本安装页面
-5. 点击 **「安装」** 确认
+## 第七步：验证与使用
 
-## 第六步：验证与使用
+1. 打开 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 词典页面</a>（新标签页打开）
+2. 页面自动弹出下载数据提示，点击 **「下载」**
 
-1. 打开 [WikiPali](https://wikipali.cc)
-2. 搜索任意巴利语单词（如 `buddha`）
-3. 弹出下载数据提示时，点击 **「下载」**
-4. 下载完成后，搜索结果上方会显示 DPD 信息栏
+![下载数据提示](../img/screenshots/dpd首页下次词典数据确认弹窗.webp)
 
-## 开发者模式注意事项
+3. 下载完成后在搜索框中输入 `buddha` 搜索
 
-- Chrome 会在每次启动时提示「请停用开发者模式扩展程序」，点击**取消/关闭**即可，不影响使用
+![DPD 注入查询结果](../img/screenshots/dpd注入查询结果到字典单页.webp)
+
+4. 搜索结果上方会显示 DPD 信息栏，包含词性、释义等信息
+
+## 注意事项
+
+- Chrome 每次启动时可能提示「请停用开发者模式扩展程序」，点击 **关闭** 即可
 - 如果卸载或重装 Chrome，需要重新执行上述步骤
-- 这种方式适合无法通过 Chrome 网上应用店安装的用户
+- 这种方式在 Chrome 自动更新后可能需要重新加载
 
-## Tampermonkey vs Violentmonkey
-
-| 对比项 | Tampermonkey | Violentmonkey |
-|--------|-------------|---------------|
-| 开源 | ❌ 部分开源 | ✅ 完全开源 |
-| 广告 | 有推广链接 | 无广告 |
-| 性能 | 优秀 | 同样优秀 |
-| 兼容性 | 最好 | 与 TM 完全兼容 |
-| 安装方式 | 商店直接安装 | 商店安装 或 解压加载 |
-| 推荐度 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+> 💡 如果你能通过网上应用店安装，建议走普通安装方式更简便。

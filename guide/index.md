@@ -1,68 +1,58 @@
-# Wiki Pali DPD 使用指南
+# 快速开始
 
-欢迎使用 **Wiki Pali DPD**！本脚本为 [WikiPali](https://wikipali.cc) 巴利语词典页面注入 [DPD（Digital Pali Dictionary）](https://github.com/digitalpalidictionary/dpd-db)词典数据，让你在查询巴利语单词时获得更丰富的语法信息。
+5 分钟上手，安装脚本管理器 → 安装脚本 → 下载词典数据 → 搜索单词
 
-## 本指南包含
+## 总体步骤
 
-<div class="browse-icons">
+1. 安装脚本管理器（各浏览器对应方式不同，见下方）
+2. 安装 **Wikipali DPD** 脚本
+3. 打开 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali</a> 首次运行将自动提示下载词典数据
+4. 搜索巴利语单词开始学习
 
-<a href="./getting-started.html" class="browse-icon-link">
-  <svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#8b4513"/><text x="12" y="32" fill="#fff" font-size="24">🚀</text></svg>
-  <span>快速开始</span>
+## 选择你的浏览器
+
+<div class="browser-cards">
+
+<a href="install/chrome.html" class="browser-card">
+  <img src="./img/icons/chrome-icon.svg" alt="Chrome" class="browser-card-icon" />
+  <div class="browser-card-body">
+    <div class="browser-card-title">Chrome（从扩展商店安装）</div>
+    <div class="browser-card-desc">从 Chrome 网上应用店安装 Tampermonkey 扩展<span class="browser-card-note">推荐 · 最简便</span></div>
+  </div>
 </a>
 
-<a href="./features.html" class="browse-icon-link">
-  <svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#8b4513"/><text x="12" y="32" fill="#fff" font-size="24">✨</text></svg>
-  <span>功能介绍</span>
+<a href="install/chrome-unpacked.html" class="browser-card">
+  <img src="./img/icons/chrome-icon.svg" alt="Chrome" class="browser-card-icon" />
+  <div class="browser-card-body">
+    <div class="browser-card-title">Chrome（从 CRX 文件安装）</div>
+    <div class="browser-card-desc">下载 CRX 文件手动加载 Tampermonkey<span class="browser-card-note">无法访问商店时用</span></div>
+  </div>
 </a>
 
-<a href="./install/chrome.html" class="browse-icon-link">
-  <svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#8b4513"/><text x="12" y="32" fill="#fff" font-size="24">🌐</text></svg>
-  <span>Chrome 安装</span>
+<a href="install/firefox.html" class="browser-card">
+  <img src="./img/icons/firefox-icon.svg" alt="Firefox" class="browser-card-icon" />
+  <div class="browser-card-body">
+    <div class="browser-card-title">Firefox</div>
+    <div class="browser-card-desc">通过 Firefox Add-ons 安装 Violentmonkey 扩展</div>
+  </div>
 </a>
 
-<a href="./install/firefox.html" class="browse-icon-link">
-  <svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#8b4513"/><text x="12" y="32" fill="#fff" font-size="24">🦊</text></svg>
-  <span>Firefox 安装</span>
-</a>
-
-<a href="./install/edge.html" class="browse-icon-link">
-  <svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#8b4513"/><text x="12" y="32" fill="#fff" font-size="24">🔷</text></svg>
-  <span>Edge 安装</span>
-</a>
-
-<a href="./usage.html" class="browse-icon-link">
-  <svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#8b4513"/><text x="12" y="32" fill="#fff" font-size="24">📝</text></svg>
-  <span>使用说明</span>
+<a href="install/edge.html" class="browser-card">
+  <img src="./img/icons/edge-icon.svg" alt="Edge" class="browser-card-icon" />
+  <div class="browser-card-body">
+    <div class="browser-card-title">Edge</div>
+    <div class="browser-card-desc">通过 Edge 扩展商店安装 Violentmonkey 扩展</div>
+  </div>
 </a>
 
 </div>
 
-## 什么是 Violentmonkey？
+> Chrome 用户请注意：最新版 Chrome 仅支持 Manifest V3 扩展，Violentmonkey（MV2）无法运行，请使用 **Tampermonkey**。Firefox 和 Edge 可使用 Violentmonkey。
 
-本脚本基于 **Violentmonkey** 扩展运行。这类扩展就像一个「脚本管理器」——
+## 浏览器下载链接
 
-- 你安装的各类脚本可以自动在特定网页上运行
-- 脚本能为网页添加新功能、改善使用体验
-- 安装和管理都很简单
+如果还没有安装浏览器，点击以下链接下载：
 
-> Violentmonkey 开源、轻量、无广告。如果你更习惯 **Tampermonkey**，同样兼容本脚本。
-
-## 准备工作
-
-开始之前，你需要：
-
-1. **一个支持脚本管理的浏览器** — Chrome、Firefox、Edge 均可
-2. **安装 Violentmonkey 扩展** — 从浏览器的扩展商店安装
-3. **网络连接** — 首次使用需要下载词典数据（约 18MB），之后离线可用
-
-> 💡 整个安装过程只需 3-5 分钟，跟着对应浏览器的安装指南一步步操作即可。
-
-## 选择你的浏览器
-
-| 浏览器 | 安装方式 | 难度 |
-|--------|---------|------|
-| [Chrome](install/chrome.html) | 扩展商店安装 Tampermonkey | ⭐ 简单 |
-| [Chrome（开发者模式）](install/chrome-unpacked.html) | 解压加载 Violentmonkey | ⭐⭐ 中等 |
-| [Firefox](install/firefox.html) | 扩展商店安装 Tampermonkey | ⭐ 简单 |
-| [Edge](install/edge.html) | 扩展商店安装 Tampermonkey | ⭐ 简单 |
+- <img src="./img/icons/chrome-icon.svg" alt="" style="display:inline;width:16px;height:16px;vertical-align:middle;border:none;margin:0;" /> [Chrome 浏览器](https://www.google.cn/intl/zh-CN/chrome/)
+- <img src="./img/icons/firefox-icon.svg" alt="" style="display:inline;width:16px;height:16px;vertical-align:middle;border:none;margin:0;" /> [Firefox 浏览器](https://www.mozilla.org/zh-CN/firefox/)
+- <img src="./img/icons/edge-icon.svg" alt="" style="display:inline;width:16px;height:16px;vertical-align:middle;border:none;margin:0;" /> [Edge 浏览器](https://www.microsoft.com/zh-cn/edge)

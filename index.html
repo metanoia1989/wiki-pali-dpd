@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wiki Pali DPD - 巴利语查词增强</title>
+  <title>Wikipali DPD - 巴利语查词增强</title>
   <link rel="icon" href="https://pali-declension.mysticalpower.uk/favicon.svg" />
   <style>
     /* ── reset ─────────────────────────────────────── */
@@ -122,9 +122,9 @@
 <!-- ══════════ HERO ══════════ -->
 <header>
   <div class="container">
-    <div class="badge" id="script-version">v0.2.0 &middot; Violentmonkey Userscript</div>    <h1>Wiki Pali DPD</h1>
+    <div class="badge" id="script-version">v0.2.0 &middot; Violentmonkey Userscript</div>    <h1>Wikipali DPD</h1>
     <p class="tagline">
-      为 WikiPali 注入巴利语词典数据 &mdash;
+      为 Wikipali 注入巴利语词典数据 &mdash;
       变格表、复合词拆解、释义一键查询
     </p>
     <p style="font-size:.95rem;opacity:.85;margin-bottom:20px;">
@@ -149,8 +149,11 @@
       <h2 style="font-size:1.3rem;color:#5c2e0e;margin-bottom:8px;border:none;padding:0;">
         图文并茂的安装指南
       </h2>
-      <p style="font-size:.95rem;color:#666;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto;">
+      <p style="font-size:.95rem;color:#666;margin-bottom:16px;max-width:500px;margin-left:auto;margin-right:auto;">
         每个浏览器都有详细的图文步骤，跟着走就能完成安装。还包含功能介绍、使用技巧和常见问题解答。
+      </p>
+      <p style="font-size:.82rem;color:#a09080;margin-bottom:16px;">
+        Chrome 用户请用 <strong>Tampermonkey</strong>（适配 MV3）&nbsp;·&nbsp; Firefox/Edge 用户推荐 <strong>Violentmonkey</strong>
       </p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <a href="guide/index.html" style="display:inline-block;background:#8b4513;color:#fff;padding:10px 28px;border-radius:8px;font-weight:600;font-size:1rem;transition:background .2s;">📖 进入使用指南</a>
@@ -170,7 +173,7 @@
       <div class="feature-card">
         <h3>词典查询</h3>
         <p>
-          在 WikiPali（wikipali.cc / wikipali.org）搜索巴利语单词时，自动从 DPD 词典数据中查询词条，
+          在 Wikipali（next.wikipali.cc / wikipali.org）搜索巴利语单词时，自动从 DPD 词典数据中查询词条，
           显示释义、词性、语法信息。
         </p>
       </div>
@@ -218,14 +221,14 @@
     <h2>安装</h2>
     <ol class="steps">
       <li>
-        安装 <strong>Violentmonkey</strong> 或 <strong>Tampermonkey</strong> 浏览器扩展
-        （Chrome / Firefox / Edge 均可）
+        安装 <strong>Violentmonkey</strong>（Firefox/Edge）或 <strong>Tampermonkey</strong>（Chrome）浏览器扩展
+        （Chrome 仅支持 Tampermonkey，因为 Violentmonkey 基于 MV2 无法在最新版 Chrome 上运行）
       </li>
       <li>
         点击上方 <strong>「安装脚本」</strong> 按钮，扩展会自动弹出安装页面
       </li>
       <li>在安装页面点击 <strong>「安装」</strong> 确认</li>
-      <li>打开 <a href="https://wikipali.cc" target="_blank">wikipali.cc</a> 或 <a href="https://wikipali.org" target="_blank">wikipali.org</a>，搜索任意巴利语单词</li>
+      <li>打开 <a href="https://next.wikipali.cc" target="_blank">next.wikipali.cc</a> 或 <a href="https://wikipali.org" target="_blank">wikipali.org</a>，搜索任意巴利语单词</li>
     </ol>
     <div class="install-tip">
       <strong>首次使用：</strong>搜索时会弹出提示框询问是否下载词典数据（约 18MB），
@@ -234,6 +237,11 @@
     <p style="margin-top:16px;font-size:.9rem;">
       <a href="guide/index.html" style="font-weight:500;">📖 详细安装指南 →</a>
       &nbsp;（含 Chrome、Firefox、Edge 的图文安装步骤）
+    </p>
+    <p style="margin-top:8px;font-size:.85rem;color:#888;">
+      浏览器下载：<a href="https://www.google.cn/intl/zh-CN/chrome/" target="_blank">Chrome</a>
+      &nbsp;·&nbsp; <a href="https://www.mozilla.org/zh-CN/firefox/" target="_blank">Firefox</a>
+      &nbsp;·&nbsp; <a href="https://www.microsoft.com/zh-cn/edge" target="_blank">Edge</a>
     </p>
   </div>
 </section>
@@ -246,7 +254,7 @@
       <div class="usage-item">
         <h3>基本搜索</h3>
         <p>
-          在 <a href="https://wikipali.cc" target="_blank">wikipali.cc</a> 或
+          在 <a href="https://next.wikipali.cc" target="_blank">next.wikipali.cc</a> 或
           <a href="https://wikipali.org" target="_blank">wikipali.org</a>
           的搜索框中输入巴利语单词，脚本会自动查询 DPD 词典数据，
           在搜索结果上方插入一个信息栏。
@@ -281,10 +289,10 @@
 
     <h3 style="font-size:1rem;color:#8b4513;margin-bottom:8px;">工作原理</h3>
     <p style="font-size:.9rem;color:#555;line-height:1.7;margin-bottom:16px;">
-      脚本在 WikiPali 页面和 DeepSeek 页面同时运行。
-      在 WikiPali 选中文本后，通过 Violentmonkey 的跨标签页存储将请求发送给
+      脚本在 Wikipali 页面和 DeepSeek 页面同时运行。
+      在 Wikipali 选中文本后，通过 Violentmonkey 的跨标签页存储将请求发送给
       DeepSeek 页面上的 Agent 模块。Agent 自动填入输入框、点击发送，
-      等待回复完成后将结果传回 WikiPali 面板。
+      等待回复完成后将结果传回 Wikipali 面板。
       整个过程无需手动复制粘贴，对话记录缓存本地，可随时回顾。
     </p>
 

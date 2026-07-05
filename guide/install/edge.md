@@ -1,54 +1,68 @@
 # Edge 浏览器安装指南
 
-通过 Edge 扩展商店安装 **Violentmonkey**（推荐），然后安装脚本。
+通过 Edge 扩展商店安装 **Violentmonkey**，然后安装脚本。
 
-> 如果你更习惯 **Tampermonkey**，同样兼容，安装流程完全一致。
+> 如果你更习惯 **Tampermonkey**，同样兼容安装流程完全一致。
+
+## 前置准备
+
+<p style="display:flex;align-items:center;gap:8px;margin:.6em 0;">
+  <img src="../img/icons/edge-icon.svg" alt="" style="width:24px;height:24px;display:inline;border:none;box-shadow:none;margin:0;" />
+  <span>还没有 Edge 浏览器？</span>
+  <a href="https://www.microsoft.com/zh-cn/edge" target="_blank" rel="noopener" style="font-weight:500;">下载 Edge →</a>
+</p>
+
+- 一个可用的网络连接
 
 ## 第一步：安装 Violentmonkey
 
 1. 打开 Edge 浏览器
-2. 访问 Edge 扩展商店中的 [Violentmonkey 页面](https://microsoftedge.microsoft.com/addons/detail/violentmonkey/eeagobfjdenkkddmbclomkkhmmjlndjm)
+2. 访问 Edge 扩展商店中的 [Violentmonkey 页面](https://microsoftedge.microsoft.com/addons/detail/violentmonkey/eeagobfjdenkkddmbclomhiblgggliao)
 
-![Edge 扩展商店](../img/edge-addons.svg)
+![Violentmonkey 扩展页面](../img/screenshots/edge浏览器violentmonkey扩展地址-以及安装提示.webp)
 
 3. 点击 **「获取」** 按钮
 4. 在弹出的确认窗口中点击 **「添加扩展」**
 
-![安装扩展](../img/edge-install-extension.svg)
+![安装确认提示](../img/screenshots/edge浏览器安装-violentmonkey扩展确认提示.webp)
 
-5. 安装完成后，地址栏右侧会出现 Violentmonkey 图标
+5. 将 Violentmonkey 固定到工具栏方便管理
 
-## 第二步：安装 Wiki Pali DPD 脚本
+![固定到工具栏](../img/screenshots/edge浏览器点击扩展图标-固定violentmonkey扩展到工具栏.webp)
 
-1. 打开 [Wiki Pali DPD 安装页面](https://pali-declension.mysticalpower.uk/)
+## 第二步：安装 Wikipali DPD 脚本
+
+1. 打开 [Wikipali DPD 安装页面](https://pali-declension.mysticalpower.uk/)
 2. 点击页面中央的 **「安装脚本」** 按钮
 
-![安装脚本](../img/edge-script-install.svg)
+![点击安装脚本](../img/screenshots/dpd脚本主页-箭头提示指向安装按钮.webp)
 
 3. Violentmonkey 会自动弹出安装页面
 4. 点击 **「安装」** 即可
 
 ## 第三步：首次使用
 
-1. 打开 [WikiPali 词典页面](https://wikipali.cc)
-2. 输入一个巴利语单词（如 `buddha`）
-3. 页面弹出词典数据下载提示时，点击 **「下载」**
+1. 打开 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 词典页面</a>（以新标签页打开）
+2. 页面自动弹出提示框询问是否下载词典数据，点击 **「下载」**
 
-![下载数据](../img/edge-download-data.svg)
+![下载数据提示](../img/screenshots/dpd首页下次词典数据确认弹窗.webp)
 
-4. 下载完成后，刷新或重新搜索即可看到 DPD 词典信息
+3. 下载完成后在搜索框中输入 `buddha` 搜索即可看到 DPD 词典信息栏
 
 ## 第四步：验证
 
-搜索 `dhamma`，搜索结果上方会出现 DPD 信息栏，包含词性、释义等信息。
+在 <a href="https://next.wikipali.cc" target="_blank" rel="noopener">Wikipali 页面</a>点击工具栏 Violentmonkey 图标可以看到 DPD 脚本的菜单项。
+
+搜索 `dhamma` 后结果上方会出现 DPD 信息栏：
+
+![DPD 查询结果](../img/screenshots/dpd注入查询结果到字典单页.webp)
 
 ## 故障排查
 
 | 问题 | 解决方法 |
 |------|---------|
-| 无法安装扩展 | Edge 版本过旧？确保 Edge 已更新到最新版本 |
-| 安装按钮灰色 | 需要登录 Microsoft 账户才能安装扩展 |
-| 脚本不工作 | 检查扩展是否为启用状态（图标彩色）。刷新页面后重试 |
+| 无法安装扩展 | 确保 Edge 已更新到最新版本 |
+| 脚本不工作 | 检查 Violentmonkey 是否为启用状态（图标彩色） |
 | 搜索不到单词 | 确认输入的是巴利语罗马字符 |
 
-> 💡 Edge 和 Chrome 使用相同的内核（Chromium），Violentmonkey 的体验也完全一致。
+> Edge 和 Chrome 使用相同的内核（Chromium），但 Violentmonkey 在 Edge 上以 MV2 方式正常运行。

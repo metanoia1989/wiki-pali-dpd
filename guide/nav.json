@@ -1,15 +1,14 @@
 {
-  "title": "Wiki Pali DPD 使用指南",
+  "title": "Wikipali DPD 使用指南",
   "pages": [
-    { "id": "index", "title": "首页", "path": "index", "icon": "🏠" },
-    { "id": "getting-started", "title": "快速开始", "path": "getting-started", "icon": "🚀" },
+    { "id": "index", "title": "快速开始", "path": "index", "icon": "🚀" },
     {
       "title": "安装指南", "icon": "📦",
       "children": [
-        { "id": "chrome", "title": "Chrome 浏览器", "path": "install/chrome", "icon": "🌐" },
-        { "id": "chrome-unpacked", "title": "Chrome（开发者模式）", "path": "install/chrome-unpacked", "icon": "⚙️" },
-        { "id": "firefox", "title": "Firefox 浏览器", "path": "install/firefox", "icon": "🦊" },
-        { "id": "edge", "title": "Edge 浏览器", "path": "install/edge", "icon": "🔷" }
+        { "id": "chrome", "title": "Chrome（扩展商店安装）", "path": "install/chrome", "icon": "img/icons/chrome-icon.svg" },
+        { "id": "chrome-unpacked", "title": "Chrome（CRX 文件安装）", "path": "install/chrome-unpacked", "icon": "img/icons/chrome-icon.svg" },
+        { "id": "firefox", "title": "Firefox", "path": "install/firefox", "icon": "img/icons/firefox-icon.svg" },
+        { "id": "edge", "title": "Edge", "path": "install/edge", "icon": "img/icons/edge-icon.svg" }
       ]
     },
     { "id": "features", "title": "功能介绍", "path": "features", "icon": "✨" },
