@@ -19,8 +19,6 @@ export default `// ==UserScript==
 // @match        https://*.wikipali.cc/pcd/*
 // @match        https://*.wikipali.org/pcd/*
 // @match        https://chat.deepseek.com/*
-// @match        http://127.0.0.1:8080/*
-// @match        http://localhost:8080/*
 // @icon         https://pali-declension.mysticalpower.uk/favicon.svg
 // @downloadURL https://pali-declension.mysticalpower.uk/wiki-pali-dpd.user.js
 // @homepageURL  https://pali-declension.mysticalpower.uk/

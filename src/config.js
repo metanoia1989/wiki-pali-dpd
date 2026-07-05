@@ -12,8 +12,6 @@
 export const DPD_SITES = [
   "wikipali.cc",
   "wikipali.org",
-  "127.0.0.1",
-  "localhost",
 ];
 
 /** 判断当前 hostname 是否在 DPD 白名单内 */
@@ -26,7 +24,7 @@ export function isDpdSite(hostname) {
 // ── 版本号 ──
 
 /** 脚本版本（逻辑变更时递增） */
-export const SCRIPT_VERSION = "0.9.0";
+export const SCRIPT_VERSION = "1.0.0";
 
 /** 数据包版本（词典数据更新时递增） */
 export const DATA_VERSION = "20260703.2";
