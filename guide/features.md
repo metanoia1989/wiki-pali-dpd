@@ -36,7 +36,7 @@ Wikipali 逐词解析面板：
 
 以 `sādhu`（好的，善的）为例：
 
-![sādhu变格表展示](./img/screenshots/sādhu的变格表示例.webp)
+![sādhu变格表展示](./img/screenshots/sadhu的变格表示例.webp)
 
 ## 🔍 复合词拆解
 
