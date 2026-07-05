@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "python3 -m http.server 8080 -d .",
     "export-db": "python3 scripts/export/web_db.py --src ~/WorkSpace/dpd-db/dpd.db",
-    "get-db": "cp data/dpd-web.db.gz ./data/dpd-web.db.gz"
+    "get-db": "cp data/dpd-web.db.gz ./dist/dpd-web.db.gz"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

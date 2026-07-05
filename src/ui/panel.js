@@ -151,7 +151,7 @@ export class Panel {
 
             // Grammar
             if (hw.grammar) {
-                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Grammar</span> ' + self._e(hw.grammar) + "</div>");
+                infoParts.push('<div class="dpd-info"><span class="dpd-info-label">Grammar</span> ' + self._markPaliWords(hw.grammar) + "</div>");
             }
 
             // Root Family
@@ -586,6 +586,27 @@ export class Panel {
         return String(str)
             .replace(/[&<>"']/g, function (ch) { return map[ch]; })
             .replace(/\n/g, " / ");
+    }
+
+    /** Grammar 字段：标记巴利语词为可点击。含变音/√ 或位于 of/from 之后的词可点击 */
+    _markPaliWords(text) {
+        if (!text) return "";
+        var self = this;
+        var words = text.split(/\s+/);
+        var prevOf = false;
+        return words.map(function (w) {
+            if (!w) return "";
+            var clickable = false;
+            // of/from 后面的词 → 衍生原型 → 可点击
+            if (prevOf) clickable = true;
+            prevOf = /^of$/i.test(w) || /^from$/i.test(w);
+            // 含巴利语变音或 √
+            if (/[āīūṁṃṇñṭḍḷō√]/i.test(w)) clickable = true;
+            if (clickable) {
+                return '<span class="dpd-word-click">' + self._e(w) + '</span>';
+            }
+            return self._e(w);
+        }).join(" ");
     }
 
     /**
