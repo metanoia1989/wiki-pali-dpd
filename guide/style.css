@@ -5,19 +5,19 @@
 
 /* ── Variables ────────────────────────────── */
 :root {
-  --color-primary: #8b4513;
-  --color-primary-dark: #5c2e0e;
-  --color-primary-light: #a0522d;
-  --color-bg: #faf8f5;
+  --color-primary: #b07a54;
+  --color-primary-dark: #8c5f3f;
+  --color-primary-light: #cfa27e;
+  --color-bg: #f8f6f3;
   --color-surface: #fff;
-  --color-text: #333;
-  --color-text-secondary: #666;
-  --color-text-muted: #999;
-  --color-border: #e8d5c4;
-  --color-sidebar-bg: #fcf9f6;
-  --color-code-bg: #f0ebe4;
-  --color-hover: #f5f0ea;
-  --color-topnav-bg: #fcf9f6;
+  --color-text: #3a3a3a;
+  --color-text-secondary: #7a7a7a;
+  --color-text-muted: #adadad;
+  --color-border: #e6ddd5;
+  --color-sidebar-bg: #faf9f7;
+  --color-code-bg: #efeae4;
+  --color-hover: #f2eee9;
+  --color-topnav-bg: #faf9f7;
 
   --topnav-height: 52px;
   --sidebar-width: 260px;
@@ -202,7 +202,7 @@ img { max-width: 100%; height: auto; }
   color: var(--color-primary);
   font-weight: 600;
   border-left-color: var(--color-primary);
-  background: rgba(139,69,19,.06);
+  background: rgba(176,122,84,.08);
 }
 .nav-link.nav-child {
   padding-left: 36px;
@@ -291,20 +291,21 @@ img { max-width: 100%; height: auto; }
   font-size: .85em;
 }
 .content pre {
-  background: #2d1f12;
-  color: #e8d5c4;
+  background: #f4f0eb;
+  color: var(--color-text);
   padding: 14px 18px;
   border-radius: 8px;
   overflow-x: auto;
   margin: .7em 0 1em;
   line-height: 1.5;
   font-size: .82rem;
+  border: 1px solid var(--color-border);
 }
 .content pre code { background: none; padding: 0; color: inherit; }
 
 .content blockquote {
-  border-left: 3px solid var(--color-primary);
-  background: #fdf8f3;
+  border-left: 3px solid var(--color-primary-light);
+  background: #faf7f4;
   padding: 10px 16px;
   margin: .7em 0;
   border-radius: 0 6px 6px 0;
@@ -323,8 +324,8 @@ img { max-width: 100%; height: auto; }
   border: 1px solid var(--color-border);
   text-align: left;
 }
-.content th { background: #f5f0ea; font-weight: 600; color: var(--color-primary-dark); }
-.content tr:nth-child(even) { background: #fcf9f6; }
+.content th { background: var(--color-hover); font-weight: 600; color: var(--color-primary); }
+.content tr:nth-child(even) { background: #fbfaf8; }
 
 .content img {
   display: block;
@@ -407,7 +408,7 @@ img { max-width: 100%; height: auto; }
   color: var(--color-primary);
   font-weight: 500;
   border-left-color: var(--color-primary);
-  background: rgba(139,69,19,.04);
+  background: rgba(176,122,84,.06);
 }
 .toc-h3 a {
   padding-left: 20px;
