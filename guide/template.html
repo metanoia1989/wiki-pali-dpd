@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{page_title}} - Wiki Pali DPD 使用指南</title>
+  <link rel="stylesheet" href="{{style_path}}" />
+  <link rel="icon" href="https://pali-declension.mysticalpower.uk/favicon.svg" />
+</head>
+<body>
+
+<!-- ══════ Top Navigation Bar ══════ -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <button class="topnav-toggle" id="navToggle" aria-label="切换菜单">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="{{to_root}}index.html" class="topnav-logo">Wiki Pali DPD</a>
+    <a href="{{site_root}}index.html" class="topnav-mobile-home">脚本主页</a>
+    <div class="topnav-links" id="topnavLinks">
+      <a href="{{to_root}}features.html">功能介绍</a>
+      <a href="{{to_root}}getting-started.html">快速开始</a>
+      <a href="{{to_root}}usage.html">使用说明</a>
+      <a href="{{site_root}}index.html" class="topnav-external">脚本主页 ↗</a>
+      <a href="https://github.com/metanoia1989/wiki-pali-dpd" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://wikipali.cc" target="_blank" rel="noopener" class="topnav-external">WikiPali ↗</a>
+    </div>
+    <a href="https://pali-declension.mysticalpower.uk/wiki-pali-dpd.user.js" class="topnav-install-btn" id="navInstallBtn">安装脚本</a>
+  </div>
+</nav>
+
+<!-- ══════ Layout Wrapper ══════ -->
+<div class="layout">
+
+  <!-- ══════ Sidebar ══════ -->
+  <!-- 隐藏状态通过 style 属性直接控制，防止移动端页面切换闪现 -->
+  <aside class="sidebar" id="sidebar" style="transform: translateX(-100%);">
+    <nav class="sidebar-nav">
+      {{nav_html}}
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{{site_root}}index.html">脚本主页</a>
+      <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener">Violentmonkey</a>
+      <a href="https://github.com/metanoia1989/wiki-pali-dpd" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </aside>
+
+  <!-- ══════ Main Content ══════ -->
+  <main class="content">
+    <div class="breadcrumb">{{breadcrumb_html}}</div>
+
+    {{content}}
+
+    <nav class="page-nav">
+      <div class="page-nav-prev">{{prev_html}}</div>
+      <div class="page-nav-next">{{next_html}}</div>
+    </nav>
+
+    <footer class="guide-footer">
+      <p>Wiki Pali DPD &middot; MIT 许可 &middot; <a href="https://github.com/metanoia1989/wiki-pali-dpd" target="_blank" rel="noopener">GitHub</a></p>
+    </footer>
+  </main>
+
+  <!-- ══════ Right TOC ══════ -->
+  <aside class="toc" id="pageToc">
+    <div class="toc-label">本页目录</div>
+    {{toc_html}}
+  </aside>
+
+</div>
+
+<!-- ══════ Mobile Overlay ══════ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<script>
+(function() {
+  var toggle = document.getElementById('navToggle');
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  if (!toggle || !sidebar || !overlay) return;
+
+  var open = false;
+
+  function setState(visible) {
+    open = visible;
+    sidebar.style.transform = visible ? 'translateX(0)' : 'translateX(-100%)';
+    overlay.classList.toggle('visible', visible);
+  }
+
+  function onResize() {
+    if (window.innerWidth >= 768) {
+      sidebar.style.transform = '';
+      open = false;
+      overlay.classList.remove('visible');
+    } else if (!open) {
+      sidebar.style.transform = 'translateX(-100%)';
+    }
+  }
+
+  toggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    setState(!open);
+  });
+  overlay.addEventListener('click', function() { setState(false); });
+  window.addEventListener('resize', onResize);
+
+  // 右侧 TOC 滚动高亮
+  var tocLinks = document.querySelectorAll('.toc-list a');
+  if (tocLinks.length) {
+    var headings = [];
+    tocLinks.forEach(function(a) {
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if (el) headings.push({ el: el, link: a });
+    });
+    function updateTOC() {
+      var scrollY = window.scrollY + 80;
+      var active = null;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        if (headings[i].el.offsetTop <= scrollY) { active = headings[i]; break; }
+      }
+      tocLinks.forEach(function(a) { a.classList.remove('toc-active'); });
+      if (active) active.link.classList.add('toc-active');
+    }
+    window.addEventListener('scroll', updateTOC);
+    updateTOC();
+  }
+})();
+</script>
+</body>
+</html>
