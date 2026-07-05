@@ -48,20 +48,6 @@
     .btn-install small {
       display: block; font-size: .75rem; font-weight: 400; opacity: .75;
     }
-    .btn-row {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      flex-wrap: wrap;
-    }
-    .btn-guide {
-      display: inline-block; background: transparent; color: #ffc107;
-      font-size: .95rem; font-weight: 500; padding: 8px 20px;
-      border-radius: 8px; border: 1.5px solid rgba(255,193,7,.45);
-      transition: background .2s, border-color .2s;
-    }
-    .btn-guide:hover {
-      background: rgba(255,193,7,.1); border-color: #ffc107;
-      text-decoration: none;
-    }
     .header-meta {
       margin-top: 20px; font-size: .85rem; opacity: .7;
     }
@@ -144,15 +130,10 @@
     <p style="font-size:.95rem;opacity:.85;margin-bottom:20px;">
       集成 DeepSeek AI 辅助：选中文本即可提问 &mdash; 语法分析、词义辨析、翻译，AI 帮你解答
     </p>
-    <div class="btn-row">
-      <a href="wiki-pali-dpd.user.js" class="btn-install">
-        安装脚本
-        <small>wiki-pali-dpd.user.js</small>
-      </a>
-      <a href="guide/index.html" class="btn-guide">
-        📖 安装指南
-      </a>
-    </div>
+    <a href="wiki-pali-dpd.user.js" class="btn-install">
+      安装脚本
+      <small>wiki-pali-dpd.user.js</small>
+    </a>
     <div class="header-meta">
       <a href="https://github.com/metanoia1989/wiki-pali-dpd" target="_blank">GitHub</a>
       &nbsp;&middot;&nbsp;
@@ -160,6 +141,26 @@
     </div>
   </div>
 </header>
+
+<!-- ══════════ 使用指南入口 ══════════ -->
+<section style="background:#fff;">
+  <div class="container" style="text-align:center;">
+    <div style="background:linear-gradient(135deg,#fdf8f3,#fefcf9);border:1px solid #e8d5c4;border-radius:12px;padding:36px 28px;">
+      <h2 style="font-size:1.3rem;color:#5c2e0e;margin-bottom:8px;border:none;padding:0;">
+        图文并茂的安装指南
+      </h2>
+      <p style="font-size:.95rem;color:#666;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto;">
+        每个浏览器都有详细的图文步骤，跟着走就能完成安装。还包含功能介绍、使用技巧和常见问题解答。
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="guide/index.html" style="display:inline-block;background:#8b4513;color:#fff;padding:10px 28px;border-radius:8px;font-weight:600;font-size:1rem;transition:background .2s;">📖 进入使用指南</a>
+        <a href="guide/install/chrome.html" style="display:inline-block;background:transparent;color:#8b4513;padding:10px 20px;border-radius:8px;font-weight:500;font-size:.95rem;border:1px solid #d4b8a0;transition:background .2s;">Chrome 安装</a>
+        <a href="guide/install/firefox.html" style="display:inline-block;background:transparent;color:#8b4513;padding:10px 20px;border-radius:8px;font-weight:500;font-size:.95rem;border:1px solid #d4b8a0;transition:background .2s;">Firefox 安装</a>
+        <a href="guide/install/edge.html" style="display:inline-block;background:transparent;color:#8b4513;padding:10px 20px;border-radius:8px;font-weight:500;font-size:.95rem;border:1px solid #d4b8a0;transition:background .2s;">Edge 安装</a>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ══════════ 功能 ══════════ -->
 <section>
@@ -206,26 +207,6 @@
           所有 AI 问答记录自动缓存本地，支持分页浏览和展开查看完整回复，
           方便回顾学习过程中的问题和解答。
         </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ 使用指南入口 ══════════ -->
-<section style="background:#fff;">
-  <div class="container" style="text-align:center;">
-    <div style="background:linear-gradient(135deg,#fdf8f3,#fefcf9);border:1px solid #e8d5c4;border-radius:12px;padding:36px 28px;">
-      <h2 style="font-size:1.3rem;color:#5c2e0e;margin-bottom:8px;border:none;padding:0;">
-        图文并茂的安装指南
-      </h2>
-      <p style="font-size:.95rem;color:#666;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto;">
-        每个浏览器都有详细的图文步骤，跟着走就能完成安装。还包含功能介绍、使用技巧和常见问题解答。
-      </p>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <a href="guide/index.html" style="display:inline-block;background:#8b4513;color:#fff;padding:10px 28px;border-radius:8px;font-weight:600;font-size:1rem;transition:background .2s;">📖 进入使用指南</a>
-        <a href="guide/install/chrome.html" style="display:inline-block;background:transparent;color:#8b4513;padding:10px 20px;border-radius:8px;font-weight:500;font-size:.95rem;border:1px solid #d4b8a0;transition:background .2s;">Chrome 安装</a>
-        <a href="guide/install/firefox.html" style="display:inline-block;background:transparent;color:#8b4513;padding:10px 20px;border-radius:8px;font-weight:500;font-size:.95rem;border:1px solid #d4b8a0;transition:background .2s;">Firefox 安装</a>
-        <a href="guide/install/edge.html" style="display:inline-block;background:transparent;color:#8b4513;padding:10px 20px;border-radius:8px;font-weight:500;font-size:.95rem;border:1px solid #d4b8a0;transition:background .2s;">Edge 安装</a>
       </div>
     </div>
   </div>
