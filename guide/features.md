@@ -36,12 +36,7 @@ Wikipali 逐词解析面板：
 
 以 `sādhu`（好的，善的）为例：
 
-| 格 | 阳性单数 | 阳性复数 | 中性单数 | 中性复数 |
-|------|---------|---------|---------|---------|
-| 主格 | sādhu | sādhavo / sādhū | sādhu / sādhuṃ | sādhū / sādhūni |
-| 宾格 | sādhuṃ | sādhavo / sādhū | sādhuṃ | sādhū / sādhūni |
-| 具格 | sādhunā | sādhūhi / sādhūbhi | sādhunā | sādhūhi / sādhūbhi |
-| 属格 | sādhuno / sādhussa | sādhūnaṃ | sādhuno / sādhussa | sādhūnaṃ |
+![sādhu变格表展示](./img/screenshots/sādhu的变格表示例.webp)
 
 ## 🔍 复合词拆解
 

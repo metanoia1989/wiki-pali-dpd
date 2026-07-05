@@ -69,7 +69,9 @@
 ![DPD 脚本主页点击安装](../img/screenshots/dpd脚本主页-箭头提示指向安装按钮.webp)
 
 3. Tampermonkey 会自动弹出安装页面
-4. 点击 **「安装」** 确认
+4. 查看脚本信息，点击 **「安装」** 确认
+
+![Tampermonkey 安装脚本页面](../img/screenshots/tampermonkey-安装脚本页面.webp)
 
 ## 第八步：验证与使用
 
